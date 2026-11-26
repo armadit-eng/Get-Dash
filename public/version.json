@@ -1,9 +1,9 @@
 {
-  "version": "1.0.2",
-  "versionCode": 10002,
-  "buildTime": "2026-11-26T01:40:30.968Z",
-  "commit": "3a7affd",
-  "notes": "ci: update Android build pipeline and bump version to 1.0.1",
-  "apkFileName": "Dashboard-EV-v1.0.2.apk",
-  "apkUrl": "https://github.com/armadit-eng/Get-Dash/releases/download/v1.0.2/Dashboard-EV-v1.0.2.apk"
+  "version": "1.0.3",
+  "versionCode": 10003,
+  "buildTime": "2026-11-26T02:18:01.706Z",
+  "commit": "61dd903",
+  "notes": "feat: add bluetooth-le support",
+  "apkFileName": "Dashboard-EV-v1.0.3.apk",
+  "apkUrl": "https://github.com/armadit-eng/Get-Dash/releases/download/v1.0.3/Dashboard-EV-v1.0.3.apk"
 }

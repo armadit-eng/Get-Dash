@@ -13,6 +13,7 @@
     "version:sync": "node scripts/bump-version.mjs --sync-only"
   },
   "dependencies": {
+    "@capacitor-community/bluetooth-le": "^8.4.0",
     "@capacitor/android": "^8.6.3",
     "@capacitor/cli": "^8.6.3",
     "@capacitor/core": "^8.6.3",

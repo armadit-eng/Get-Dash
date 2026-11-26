@@ -18,6 +18,7 @@ import {
   parseHexStringToBytes,
 } from '../engine/protocolParsers';
 import { distanceToPolylineM, haversineKm } from '../engine/routePhysics';
+import { bluetoothTransport } from '../services/bluetoothTransport';
 import { RemoteApisService } from '../services/remoteApis';
 import { StorageService } from '../services/storageService';
 import { getCockpitColors, CockpitColors } from '../theme/cockpitTheme';
@@ -109,6 +110,7 @@ interface DashboardContextValue {
   lastMidFramePreview: string;
   discoveredDevices: DiscoveredDevice[];
   isScanningBle: boolean;
+  scanError: string;
   badges: RiderBadge[];
   fuelSavings: FuelSavingsSummary;
   maintStatus: MaintenanceStatus;
@@ -119,8 +121,13 @@ interface DashboardContextValue {
   updateSettings: (next: AppSettings) => void;
   toggleDevSim: (enable: boolean) => void;
   scanDevices: () => Promise<void>;
-  connectDevice: (device: DiscoveredDevice) => void;
-  disconnectDevice: (type: DiscoveredDevice['deviceType']) => void;
+  connectWebSerialMotor: () => Promise<void>;
+  assignDiscoveredDeviceRole: (
+    address: string,
+    patch: Partial<Pick<DiscoveredDevice, 'deviceType' | 'controllerProtocol' | 'bmsProtocol'>>
+  ) => void;
+  connectDevice: (device: DiscoveredDevice) => Promise<void>;
+  disconnectDevice: (type: DiscoveredDevice['deviceType']) => Promise<void>;
   injectMotorAtCommand: (line: string) => void;
   injectProtocolHexFrame: (hex: string, target: 'controller' | 'bms') => boolean;
   clearSerialLogs: () => void;
@@ -264,6 +271,7 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [lastMidFramePreview, setLastMidFramePreview] = useState('');
   const [discoveredDevices, setDiscoveredDevices] = useState<DiscoveredDevice[]>([]);
   const [isScanningBle, setIsScanningBle] = useState(false);
+  const [scanError, setScanError] = useState('');
 
   const livePathPointsRef = useRef<GeoPoint[]>([]);
   const wasMovingRef = useRef(false);
@@ -637,6 +645,9 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
             )}W|SOC:${Math.round(cur.effective.combinedSocPct ?? 0)}%"`;
         setMapsFramesSent((c) => c + 1);
         setLastMidFramePreview(frame);
+        if (cur.motorConnState === 'CONNECTED' && !cur.devSimActive) {
+          void bluetoothTransport.sendTextCommand('motor', frame);
+        }
       }
     }, 1000);
     return () => clearInterval(timer);
@@ -691,143 +702,201 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
   const scanDevices = useCallback(async () => {
     setIsScanningBle(true);
-    const list: DiscoveredDevice[] = [
-      {
-        name: 'GESITS-MID-AT (ORI SPP/BLE)',
-        address: '00:1B:10:66:4A:11',
-        isBle: false,
-        rssi: -52,
-        isPaired: true,
-        deviceType: 'motor',
-        controllerProtocol: 'motor_mid',
-      },
-      {
-        name: 'Fardriver-BLE-ND72450',
-        address: 'A4:C1:38:72:45:01',
-        isBle: true,
-        rssi: -49,
-        isPaired: true,
-        deviceType: 'motor',
-        controllerProtocol: 'fardriver',
-      },
-      {
-        name: 'JK-BD6A20S10P (JK-BMS)',
-        address: 'C8:47:8C:12:90:AB',
-        isBle: true,
-        rssi: -58,
-        isPaired: true,
-        deviceType: 'jikong',
-        bmsProtocol: 'jk',
-      },
-      {
-        name: 'ANT-BMS-20S (ANT)',
-        address: 'AA:55:AA:FF:20:01',
-        isBle: true,
-        rssi: -56,
-        isPaired: true,
-        deviceType: 'jikong',
-        bmsProtocol: 'ant',
-      },
-      {
-        name: 'DALY-SmartBMS-BLE (DALY)',
-        address: 'DA:17:88:90:01:A5',
-        isBle: true,
-        rssi: -60,
-        isPaired: true,
-        deviceType: 'jikong',
-        bmsProtocol: 'daly',
-      },
-      {
-        name: 'JBD-SP20S006 (Xiaoxiang)',
-        address: 'A5:C2:37:11:03:DD',
-        isBle: true,
-        rssi: -59,
-        isPaired: true,
-        deviceType: 'jikong',
-        bmsProtocol: 'jbd',
-      },
-      {
-        name: 'ESP32-BRIDGE-1 (Kontak/LED)',
-        address: '24:6F:28:9A:11:01',
-        isBle: true,
-        rssi: -61,
-        isPaired: true,
-        deviceType: 'esp1',
-      },
-      {
-        name: 'ESP32-BAT2-CAN (Pack 2)',
-        address: '24:6F:28:9A:22:02',
-        isBle: true,
-        rssi: -64,
-        isPaired: true,
-        deviceType: 'esp2',
-      },
-    ];
-
-    const navBle = (
-      navigator as unknown as {
-        bluetooth?: { requestDevice: (opts: unknown) => Promise<{ name?: string; id: string }> };
-      }
-    ).bluetooth;
-    if (navBle) {
-      try {
-        const bleDev = await navBle.requestDevice({
-          acceptAllDevices: true,
-          optionalServices: [
-            '0000ffe0-0000-1000-8000-00805f9b34fb',
-            '0000fff0-0000-1000-8000-00805f9b34fb',
-            '0000ff00-0000-1000-8000-00805f9b34fb',
-          ],
-        });
-        if (bleDev) {
-          const upper = (bleDev.name || '').toUpperCase();
-          const detectedCtrl = upper.includes('FARDRIVER') ? 'fardriver' : undefined;
-          const detectedBms = upper.includes('ANT')
-            ? 'ant'
-            : upper.includes('DALY')
-              ? 'daly'
-              : upper.includes('JBD') || upper.includes('XIAOXIANG')
-                ? 'jbd'
-                : 'jk';
-          list.unshift({
-            name: bleDev.name || 'Perangkat WebBLE',
-            address: bleDev.id,
-            isBle: true,
-            rssi: -45,
-            isPaired: true,
-            deviceType: detectedCtrl ? 'motor' : 'jikong',
-            controllerProtocol: detectedCtrl,
-            bmsProtocol: detectedCtrl ? undefined : detectedBms,
-          });
-          addLog('BLE', `Perangkat Web Bluetooth ditemukan: ${bleDev.name || bleDev.id}`);
-        }
-      } catch {
-        // User canceled Web Bluetooth picker or unsupported in preview iframe
-      }
+    setScanError('');
+    const result = await bluetoothTransport.scanRealDevices(
+      settings.controllerProtocol,
+      settings.bmsProtocol,
+      (liveList) => setDiscoveredDevices(liveList),
+      addLog
+    );
+    setDiscoveredDevices(result.devices);
+    if (result.error) {
+      setScanError(result.error);
+    } else if (result.devices.length === 0) {
+      setScanError(
+        'Tidak ada perangkat Bluetooth ditemukan. Pastikan Bluetooth HP aktif dan modul Motor/BMS sudah menyala atau ter-pair di Pengaturan Bluetooth HP.'
+      );
     }
-    setDiscoveredDevices(list);
     setIsScanningBle(false);
-  }, [addLog]);
+  }, [addLog, settings.bmsProtocol, settings.controllerProtocol]);
+
+  const assignDiscoveredDeviceRole = useCallback(
+    (
+      address: string,
+      patch: Partial<Pick<DiscoveredDevice, 'deviceType' | 'controllerProtocol' | 'bmsProtocol'>>
+    ) => {
+      setDiscoveredDevices((prev) =>
+        prev.map((d) => (d.address === address ? { ...d, ...patch } : d))
+      );
+    },
+    []
+  );
+
+  const handleIncomingTransportLine = useCallback(
+    (deviceType: DiscoveredDevice['deviceType'], line: string) => {
+      const now = Date.now();
+      addLog(deviceType.toUpperCase(), line);
+
+      if (deviceType === 'motor') {
+        setMotorData((prev) => {
+          const parsed = parseMotorAtLine(
+            line,
+            { ...prev, sourceProtocol: 'motor_mid' },
+            now,
+            (odo) => updateSettings({ ...latestRef.current.settings, odoBackupKm: odo }),
+            (msg) => addLog('ODO-GUARD', msg, true)
+          );
+          return parsed ?? { ...prev, sourceProtocol: 'motor_mid', lastUpdatedMs: now };
+        });
+        return;
+      }
+
+      if (deviceType === 'esp1') {
+        setEsp1Data((prev) => {
+          const next = { ...prev, lastUpdatedMs: now };
+          const pairs = line.split(/[,\s]+/);
+          for (const p of pairs) {
+            const [kRaw, vRaw] = p.split('=');
+            if (!kRaw || vRaw === undefined) continue;
+            const k = kRaw.toUpperCase();
+            const vNum = Number(vRaw);
+            if (k === 'SPD' && !Number.isNaN(vNum)) next.speedKmh = vNum;
+            else if (k === 'THR' && !Number.isNaN(vNum)) next.throttlePct = vNum;
+            else if (k === 'CRUISE') next.cruiseActive = vRaw === '1' || vRaw.toUpperCase() === 'ON';
+            else if (k === 'REV') next.reverseActive = vRaw === '1' || vRaw.toUpperCase() === 'ON';
+            else if (k === 'STAND') next.sideStandDown = vRaw === '1' || vRaw.toUpperCase() === 'DOWN';
+            else if (k === 'CONTACT' || k === 'RELAY') next.contactOn = vRaw === '1' || vRaw.toUpperCase() === 'ON';
+            else if (k === 'MODE' && !Number.isNaN(vNum)) next.modeIndex = vNum;
+          }
+          return next;
+        });
+        return;
+      }
+
+      if (deviceType === 'esp2') {
+        setBattery2Data((prev) => {
+          const next = { ...prev, lastUpdatedMs: now };
+          const pairs = line.split(/[,\s]+/);
+          for (const p of pairs) {
+            const [kRaw, vRaw] = p.split('=');
+            if (!kRaw || vRaw === undefined) continue;
+            const k = kRaw.toUpperCase();
+            const vNum = Number(vRaw);
+            if ((k === 'VBAT' || k === 'V2') && !Number.isNaN(vNum)) next.vbat = vNum;
+            else if ((k === 'IBAT' || k === 'I2') && !Number.isNaN(vNum)) next.ibat = vNum;
+            else if ((k === 'SOC' || k === 'SOC2') && !Number.isNaN(vNum)) next.socPct = vNum;
+            else if (k === 'TEMP' && !Number.isNaN(vNum)) next.tempC = vNum;
+            else if (k === 'SOH' && !Number.isNaN(vNum)) next.sohPct = vNum;
+            else if (k === 'CAN') next.canMode = vRaw;
+          }
+          return next;
+        });
+      }
+    },
+    [addLog, updateSettings]
+  );
+
+  const handleIncomingTransportBinary = useCallback(
+    (deviceType: DiscoveredDevice['deviceType'], bytes: Uint8Array) => {
+      const now = Date.now();
+      const curSettings = latestRef.current.settings;
+
+      if (deviceType === 'motor') {
+        setMotorData((prev) => {
+          const parsed = parseFardriverFrame(bytes, prev, {
+            polePairs: curSettings.fardriverPolePairs,
+            wheelCircumferenceMm: curSettings.wheelCircumferenceMm,
+            nowMs: now,
+          });
+          if (parsed) {
+            addLog('FARDRIVER', parsed.summary);
+            return parsed.data;
+          }
+          return prev;
+        });
+        return;
+      }
+
+      if (deviceType === 'jikong') {
+        setJkData((prev) => {
+          const bmsProto = prev.protocol || curSettings.bmsProtocol;
+          const parsed = detectAndParseBmsFrame(bytes, bmsProto, prev, now);
+          if (parsed) {
+            addLog(
+              bmsProto.toUpperCase(),
+              `V=${parsed.vpack?.toFixed(2) ?? '--'}V I=${parsed.ibat?.toFixed(1) ?? '--'}A SOC=${parsed.socPct ?? '--'}%`
+            );
+            return parsed;
+          }
+          return prev;
+        });
+      }
+    },
+    [addLog]
+  );
 
   const connectDevice = useCallback(
-    (device: DiscoveredDevice) => {
+    async (device: DiscoveredDevice) => {
       const now = Date.now();
-      if (device.deviceType === 'motor') {
-        const proto = device.controllerProtocol ?? settings.controllerProtocol;
-        if (proto !== settings.controllerProtocol) {
-          updateSettings({ ...settings, controllerProtocol: proto });
+      setScanError('');
+      if (device.deviceType === 'motor') setMotorConnState('CONNECTING');
+      else if (device.deviceType === 'jikong') setJkConnState('CONNECTING');
+      else if (device.deviceType === 'esp1') setEsp1ConnState('CONNECTING');
+      else setEsp2ConnState('CONNECTING');
+
+      const protoCtrl = device.controllerProtocol ?? (device.isBle ? settings.controllerProtocol : 'motor_mid');
+      const protoBms = device.bmsProtocol ?? settings.bmsProtocol;
+
+      if (device.deviceType === 'motor' && protoCtrl !== settings.controllerProtocol) {
+        updateSettings({ ...settings, controllerProtocol: protoCtrl });
+      }
+      if (device.deviceType === 'jikong' && protoBms !== settings.bmsProtocol) {
+        updateSettings({ ...settings, bmsProtocol: protoBms });
+      }
+
+      const ok = await bluetoothTransport.connectDevice(
+        device,
+        { controllerProtocol: protoCtrl, bmsProtocol: protoBms },
+        {
+          onTextLine: handleIncomingTransportLine,
+          onBinaryFrame: handleIncomingTransportBinary,
+          onDisconnected: (slot, reason) => {
+            if (slot === 'motor') {
+              setMotorConnState('DISCONNECTED');
+              setMotorConnName('');
+            } else if (slot === 'jikong') {
+              setJkConnState('DISCONNECTED');
+              setJkConnName('');
+            } else if (slot === 'esp1') {
+              setEsp1ConnState('DISCONNECTED');
+              setEsp1ConnName('');
+            } else {
+              setEsp2ConnState('DISCONNECTED');
+              setEsp2ConnName('');
+            }
+            addLog(slot.toUpperCase(), reason, true);
+          },
+          onLog: addLog,
         }
+      );
+
+      if (!ok) {
+        if (device.deviceType === 'motor') setMotorConnState('DISCONNECTED');
+        else if (device.deviceType === 'jikong') setJkConnState('DISCONNECTED');
+        else if (device.deviceType === 'esp1') setEsp1ConnState('DISCONNECTED');
+        else setEsp2ConnState('DISCONNECTED');
+        setScanError(`Gagal menghubungkan ${device.name}. Cek log serial di tab Garasi untuk detail.`);
+        return;
+      }
+
+      if (device.deviceType === 'motor') {
         setMotorConnState('CONNECTED');
         setMotorConnName(device.name);
-        setMotorData((prev) => ({ ...prev, sourceProtocol: proto, lastUpdatedMs: now }));
+        setMotorData((prev) => ({ ...prev, sourceProtocol: protoCtrl, lastUpdatedMs: now }));
       } else if (device.deviceType === 'jikong') {
-        const bmsProto = device.bmsProtocol ?? settings.bmsProtocol;
-        if (bmsProto !== settings.bmsProtocol) {
-          updateSettings({ ...settings, bmsProtocol: bmsProto });
-        }
         setJkConnState('CONNECTED');
         setJkConnName(device.name);
-        setJkData((prev) => ({ ...prev, protocol: bmsProto, lastUpdatedMs: now }));
+        setJkData((prev) => ({ ...prev, protocol: protoBms, lastUpdatedMs: now }));
       } else if (device.deviceType === 'esp1') {
         setEsp1ConnState('CONNECTED');
         setEsp1ConnName(device.name);
@@ -837,13 +906,41 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         setEsp2ConnName(device.name);
         setBattery2Data((prev) => ({ ...prev, lastUpdatedMs: now }));
       }
-      addLog('CONN', `Terhubung ke ${device.name} (${device.address})`);
     },
-    [addLog, settings, updateSettings]
+    [
+      addLog,
+      handleIncomingTransportBinary,
+      handleIncomingTransportLine,
+      settings,
+      updateSettings,
+    ]
   );
 
+  const connectWebSerialMotor = useCallback(async () => {
+    setScanError('');
+    setMotorConnState('CONNECTING');
+    const dev = await bluetoothTransport.connectWebSerialSpp({
+      onTextLine: handleIncomingTransportLine,
+      onBinaryFrame: handleIncomingTransportBinary,
+      onDisconnected: () => {
+        setMotorConnState('DISCONNECTED');
+        setMotorConnName('');
+      },
+      onLog: addLog,
+    });
+    if (!dev) {
+      setMotorConnState('DISCONNECTED');
+      setScanError('Gagal membuka port Serial SPP (Web Serial hanya tersedia di Chrome Desktop / adapter serial).');
+      return;
+    }
+    setMotorConnState('CONNECTED');
+    setMotorConnName(dev.name);
+    updateSettings({ ...settings, controllerProtocol: 'motor_mid' });
+  }, [addLog, handleIncomingTransportBinary, handleIncomingTransportLine, settings, updateSettings]);
+
   const disconnectDevice = useCallback(
-    (type: DiscoveredDevice['deviceType']) => {
+    async (type: DiscoveredDevice['deviceType']) => {
+      await bluetoothTransport.disconnectSlot(type);
       if (type === 'motor') {
         setMotorConnState('DISCONNECTED');
         setMotorConnName('');
@@ -865,6 +962,9 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const injectMotorAtCommand = useCallback(
     (line: string) => {
       addLog('TX/RX', line);
+      if (motorConnState === 'CONNECTED' && !devSimActive) {
+        void bluetoothTransport.sendTextCommand('motor', line);
+      }
       const now = Date.now();
       setMotorConnState('CONNECTED');
       if (!motorConnName) setMotorConnName('MID-AT-CONSOLE');
@@ -879,7 +979,7 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         return parsed ?? { ...prev, sourceProtocol: 'motor_mid', lastUpdatedMs: now };
       });
     },
-    [addLog, motorConnName, settings, updateSettings]
+    [addLog, devSimActive, motorConnName, motorConnState, settings, updateSettings]
   );
 
   const injectProtocolHexFrame = useCallback(
@@ -1252,6 +1352,7 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     lastMidFramePreview,
     discoveredDevices,
     isScanningBle,
+    scanError,
     badges,
     fuelSavings,
     maintStatus,
@@ -1261,6 +1362,8 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     updateSettings,
     toggleDevSim,
     scanDevices,
+    connectWebSerialMotor,
+    assignDiscoveredDeviceRole,
     connectDevice,
     disconnectDevice,
     injectMotorAtCommand,

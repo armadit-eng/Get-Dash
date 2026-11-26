@@ -11683,6 +11683,34 @@ var ChevronUp = createLucideIcon("chevron-up", [["path", {
 * This source code is licensed under the ISC license.
 * See the LICENSE file in the root directory of this source tree.
 */
+var CircleAlert = createLucideIcon("circle-alert", [
+	["circle", {
+		cx: "12",
+		cy: "12",
+		r: "10",
+		key: "1mglay"
+	}],
+	["line", {
+		x1: "12",
+		x2: "12",
+		y1: "8",
+		y2: "12",
+		key: "1pkeuh"
+	}],
+	["line", {
+		x1: "12",
+		x2: "12.01",
+		y1: "16",
+		y2: "16",
+		key: "4dfq90"
+	}]
+]);
+/**
+* @license lucide-react v0.546.0 - ISC
+*
+* This source code is licensed under the ISC license.
+* See the LICENSE file in the root directory of this source tree.
+*/
 var CircleCheck = createLucideIcon("circle-check", [["circle", {
 	cx: "12",
 	cy: "12",
@@ -12603,6 +12631,46 @@ var Unplug = createLucideIcon("unplug", [
 * This source code is licensed under the ISC license.
 * See the LICENSE file in the root directory of this source tree.
 */
+var Usb = createLucideIcon("usb", [
+	["circle", {
+		cx: "10",
+		cy: "7",
+		r: "1",
+		key: "dypaad"
+	}],
+	["circle", {
+		cx: "4",
+		cy: "20",
+		r: "1",
+		key: "22iqad"
+	}],
+	["path", {
+		d: "M4.7 19.3 19 5",
+		key: "1enqfc"
+	}],
+	["path", {
+		d: "m21 3-3 1 2 2Z",
+		key: "d3ov82"
+	}],
+	["path", {
+		d: "M9.26 7.68 5 12l2 5",
+		key: "1esawj"
+	}],
+	["path", {
+		d: "m10 14 5 2 3.5-3.5",
+		key: "v8oal5"
+	}],
+	["path", {
+		d: "m18 12 1-1 1 1-1 1Z",
+		key: "1bh22v"
+	}]
+]);
+/**
+* @license lucide-react v0.546.0 - ISC
+*
+* This source code is licensed under the ISC license.
+* See the LICENSE file in the root directory of this source tree.
+*/
 var VideoOff = createLucideIcon("video-off", [
 	["path", {
 		d: "M10.66 6H14a2 2 0 0 1 2 2v2.5l5.248-3.062A.5.5 0 0 1 22 7.87v8.196",
@@ -12747,8 +12815,517 @@ var Zap = createLucideIcon("zap", [["path", {
 	d: "M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z",
 	key: "1xq2db"
 }]]);
-// src/types/dashboard.ts
+// node_modules/@capacitor/core/dist/index.js
 var import_client = require_client();
+/*! Capacitor: https://capacitorjs.com/ - MIT License */
+var ExceptionCode;
+(function(ExceptionCode) {
+	/**
+	* API is not implemented.
+	*
+	* This usually means the API can't be used because it is not implemented for
+	* the current platform.
+	*/
+	ExceptionCode["Unimplemented"] = "UNIMPLEMENTED";
+	/**
+	* API is not available.
+	*
+	* This means the API can't be used right now because:
+	*   - it is currently missing a prerequisite, such as network connectivity
+	*   - it requires a particular platform or browser version
+	*/
+	ExceptionCode["Unavailable"] = "UNAVAILABLE";
+})(ExceptionCode || (ExceptionCode = {}));
+var CapacitorException = class extends Error {
+	constructor(message, code, data) {
+		super(message);
+		this.message = message;
+		this.code = code;
+		this.data = data;
+	}
+};
+var getPlatformId = (win) => {
+	var _a, _b;
+	if (win === null || win === void 0 ? void 0 : win.androidBridge) return "android";
+	else if ((_b = (_a = win === null || win === void 0 ? void 0 : win.webkit) === null || _a === void 0 ? void 0 : _a.messageHandlers) === null || _b === void 0 ? void 0 : _b.bridge) return "ios";
+	else return "web";
+};
+var createCapacitor = (win) => {
+	const capCustomPlatform = win.CapacitorCustomPlatform || null;
+	const cap = win.Capacitor || {};
+	const Plugins = cap.Plugins = cap.Plugins || {};
+	const getPlatform = () => {
+		return capCustomPlatform !== null ? capCustomPlatform.name : getPlatformId(win);
+	};
+	const isNativePlatform = () => getPlatform() !== "web";
+	const isPluginAvailable = (pluginName) => {
+		const plugin = registeredPlugins.get(pluginName);
+		if (plugin === null || plugin === void 0 ? void 0 : plugin.platforms.has(getPlatform())) return true;
+		if (getPluginHeader(pluginName)) return true;
+		return false;
+	};
+	const getPluginHeader = (pluginName) => {
+		var _a;
+		return (_a = cap.PluginHeaders) === null || _a === void 0 ? void 0 : _a.find((h) => h.name === pluginName);
+	};
+	const handleError = (err) => win.console.error(err);
+	const registeredPlugins = /* @__PURE__ */ new Map();
+	const registerPlugin = (pluginName, jsImplementations = {}) => {
+		const registeredPlugin = registeredPlugins.get(pluginName);
+		if (registeredPlugin) {
+			console.warn(`Capacitor plugin "${pluginName}" already registered. Cannot register plugins twice.`);
+			return registeredPlugin.proxy;
+		}
+		const platform = getPlatform();
+		const pluginHeader = getPluginHeader(pluginName);
+		let jsImplementation;
+		const loadPluginImplementation = async () => {
+			if (!jsImplementation && platform in jsImplementations) jsImplementation = typeof jsImplementations[platform] === "function" ? jsImplementation = await jsImplementations[platform]() : jsImplementation = jsImplementations[platform];
+			else if (capCustomPlatform !== null && !jsImplementation && "web" in jsImplementations) jsImplementation = typeof jsImplementations["web"] === "function" ? jsImplementation = await jsImplementations["web"]() : jsImplementation = jsImplementations["web"];
+			return jsImplementation;
+		};
+		const createPluginMethod = (impl, prop) => {
+			var _a, _b;
+			if (pluginHeader) {
+				const methodHeader = pluginHeader === null || pluginHeader === void 0 ? void 0 : pluginHeader.methods.find((m) => prop === m.name);
+				if (methodHeader) {
+					if (methodHeader.rtype === "promise") return (options) => cap.nativePromise(pluginName, prop.toString(), options);
+					else return (options, callback) => cap.nativeCallback(pluginName, prop.toString(), options, callback);
+				} else if (impl) return (_a = impl[prop]) === null || _a === void 0 ? void 0 : _a.bind(impl);
+			} else if (impl) return (_b = impl[prop]) === null || _b === void 0 ? void 0 : _b.bind(impl);
+			else throw new CapacitorException(`"${pluginName}" plugin is not implemented on ${platform}`, ExceptionCode.Unimplemented);
+		};
+		const createPluginMethodWrapper = (prop) => {
+			let remove;
+			const wrapper = (...args) => {
+				const p = loadPluginImplementation().then((impl) => {
+					const fn = createPluginMethod(impl, prop);
+					if (fn) {
+						const p = fn(...args);
+						remove = p === null || p === void 0 ? void 0 : p.remove;
+						return p;
+					} else throw new CapacitorException(`"${pluginName}.${prop}()" is not implemented on ${platform}`, ExceptionCode.Unimplemented);
+				});
+				if (prop === "addListener") p.remove = async () => remove();
+				return p;
+			};
+			wrapper.toString = () => `${prop.toString()}() { [capacitor code] }`;
+			Object.defineProperty(wrapper, "name", {
+				value: prop,
+				writable: false,
+				configurable: false
+			});
+			return wrapper;
+		};
+		const addListener = createPluginMethodWrapper("addListener");
+		const removeListener = createPluginMethodWrapper("removeListener");
+		const addListenerNative = (eventName, callback) => {
+			const call = addListener({ eventName }, callback).then((callbackId) => callbackId);
+			const remove = async () => {
+				const callbackId = await call;
+				await removeListener({
+					eventName,
+					callbackId
+				});
+			};
+			const p = new Promise((resolve) => call.then(() => resolve({ remove })));
+			p.remove = async () => {
+				console.warn(`Using addListener() without 'await' is deprecated.`);
+				await remove();
+			};
+			return p;
+		};
+		const proxy = new Proxy({}, { get(_, prop) {
+			switch (prop) {
+				case "$$typeof": return;
+				case "toJSON": return () => ({});
+				case "addListener": return pluginHeader ? addListenerNative : addListener;
+				case "removeListener": return removeListener;
+				default: return createPluginMethodWrapper(prop);
+			}
+		} });
+		Plugins[pluginName] = proxy;
+		registeredPlugins.set(pluginName, {
+			name: pluginName,
+			proxy,
+			platforms: /* @__PURE__ */ new Set([...Object.keys(jsImplementations), ...pluginHeader ? [platform] : []])
+		});
+		return proxy;
+	};
+	if (!cap.convertFileSrc) cap.convertFileSrc = (filePath) => filePath;
+	cap.getPlatform = getPlatform;
+	cap.handleError = handleError;
+	cap.isNativePlatform = isNativePlatform;
+	cap.isPluginAvailable = isPluginAvailable;
+	cap.registerPlugin = registerPlugin;
+	cap.Exception = CapacitorException;
+	cap.DEBUG = !!cap.DEBUG;
+	cap.isLoggingEnabled = !!cap.isLoggingEnabled;
+	return cap;
+};
+var initCapacitorGlobal = (win) => win.Capacitor = createCapacitor(win);
+var Capacitor = /*#__PURE__*/ initCapacitorGlobal(typeof globalThis !== "undefined" ? globalThis : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : typeof global !== "undefined" ? global : {});
+var registerPlugin = Capacitor.registerPlugin;
+/**
+* Base class web plugins should extend.
+*/
+var WebPlugin = class {
+	constructor() {
+		this.listeners = {};
+		this.retainedEventArguments = {};
+		this.windowListeners = {};
+	}
+	addListener(eventName, listenerFunc) {
+		let firstListener = false;
+		if (!this.listeners[eventName]) {
+			this.listeners[eventName] = [];
+			firstListener = true;
+		}
+		this.listeners[eventName].push(listenerFunc);
+		const windowListener = this.windowListeners[eventName];
+		if (windowListener && !windowListener.registered) this.addWindowListener(windowListener);
+		if (firstListener) this.sendRetainedArgumentsForEvent(eventName);
+		const remove = async () => this.removeListener(eventName, listenerFunc);
+		return Promise.resolve({ remove });
+	}
+	async removeAllListeners() {
+		this.listeners = {};
+		for (const listener in this.windowListeners) this.removeWindowListener(this.windowListeners[listener]);
+		this.windowListeners = {};
+	}
+	notifyListeners(eventName, data, retainUntilConsumed) {
+		const listeners = this.listeners[eventName];
+		if (!listeners) {
+			if (retainUntilConsumed) {
+				let args = this.retainedEventArguments[eventName];
+				if (!args) args = [];
+				args.push(data);
+				this.retainedEventArguments[eventName] = args;
+			}
+			return;
+		}
+		listeners.forEach((listener) => listener(data));
+	}
+	hasListeners(eventName) {
+		var _a;
+		return !!((_a = this.listeners[eventName]) === null || _a === void 0 ? void 0 : _a.length);
+	}
+	registerWindowListener(windowEventName, pluginEventName) {
+		this.windowListeners[pluginEventName] = {
+			registered: false,
+			windowEventName,
+			pluginEventName,
+			handler: (event) => {
+				this.notifyListeners(pluginEventName, event);
+			}
+		};
+	}
+	unimplemented(msg = "not implemented") {
+		return new Capacitor.Exception(msg, ExceptionCode.Unimplemented);
+	}
+	unavailable(msg = "not available") {
+		return new Capacitor.Exception(msg, ExceptionCode.Unavailable);
+	}
+	async removeListener(eventName, listenerFunc) {
+		const listeners = this.listeners[eventName];
+		if (!listeners) return;
+		const index = listeners.indexOf(listenerFunc);
+		if (index !== -1) this.listeners[eventName].splice(index, 1);
+		if (!this.listeners[eventName].length) this.removeWindowListener(this.windowListeners[eventName]);
+	}
+	addWindowListener(handle) {
+		window.addEventListener(handle.windowEventName, handle.handler);
+		handle.registered = true;
+	}
+	removeWindowListener(handle) {
+		if (!handle) return;
+		window.removeEventListener(handle.windowEventName, handle.handler);
+		handle.registered = false;
+	}
+	sendRetainedArgumentsForEvent(eventName) {
+		const args = this.retainedEventArguments[eventName];
+		if (!args) return;
+		delete this.retainedEventArguments[eventName];
+		args.forEach((arg) => {
+			this.notifyListeners(eventName, arg);
+		});
+	}
+};
+/******** END WEB VIEW PLUGIN ********/
+/******** COOKIES PLUGIN ********/
+/**
+* Safely web encode a string value (inspired by js-cookie)
+* @param str The string value to encode
+*/
+var encode = (str) => encodeURIComponent(str).replace(/%(2[346B]|5E|60|7C)/g, decodeURIComponent).replace(/[()]/g, escape);
+/**
+* Safely web decode a string value (inspired by js-cookie)
+* @param str The string value to decode
+*/
+var decode = (str) => str.replace(/(%[\dA-F]{2})+/gi, decodeURIComponent);
+var CapacitorCookiesPluginWeb = class extends WebPlugin {
+	async getCookies() {
+		const cookies = document.cookie;
+		const cookieMap = {};
+		cookies.split(";").forEach((cookie) => {
+			if (cookie.length <= 0) return;
+			let [key, value] = cookie.replace(/=/, "CAP_COOKIE").split("CAP_COOKIE");
+			key = decode(key).trim();
+			value = decode(value).trim();
+			cookieMap[key] = value;
+		});
+		return cookieMap;
+	}
+	async setCookie(options) {
+		try {
+			const encodedKey = encode(options.key);
+			const encodedValue = encode(options.value);
+			const expires = options.expires ? `; expires=${options.expires.replace("expires=", "")}` : "";
+			const path = (options.path || "/").replace("path=", "");
+			const domain = options.url != null && options.url.length > 0 ? `domain=${options.url}` : "";
+			document.cookie = `${encodedKey}=${encodedValue || ""}${expires}; path=${path}; ${domain};`;
+		} catch (error) {
+			return Promise.reject(error);
+		}
+	}
+	async deleteCookie(options) {
+		try {
+			document.cookie = `${options.key}=; Max-Age=0`;
+		} catch (error) {
+			return Promise.reject(error);
+		}
+	}
+	async clearCookies() {
+		try {
+			const cookies = document.cookie.split(";") || [];
+			for (const cookie of cookies) document.cookie = cookie.replace(/^ +/, "").replace(/=.*/, `=;expires=${(/* @__PURE__ */ new Date()).toUTCString()};path=/`);
+		} catch (error) {
+			return Promise.reject(error);
+		}
+	}
+	async clearAllCookies() {
+		try {
+			await this.clearCookies();
+		} catch (error) {
+			return Promise.reject(error);
+		}
+	}
+};
+registerPlugin("CapacitorCookies", { web: () => new CapacitorCookiesPluginWeb() });
+/**
+* Read in a Blob value and return it as a base64 string
+* @param blob The blob value to convert to a base64 string
+*/
+var readBlobAsBase64 = async (blob) => new Promise((resolve, reject) => {
+	const reader = new FileReader();
+	reader.onload = () => {
+		const base64String = reader.result;
+		resolve(base64String.indexOf(",") >= 0 ? base64String.split(",")[1] : base64String);
+	};
+	reader.onerror = (error) => reject(error);
+	reader.readAsDataURL(blob);
+});
+/**
+* Normalize an HttpHeaders map by lowercasing all of the values
+* @param headers The HttpHeaders object to normalize
+*/
+var normalizeHttpHeaders = (headers = {}) => {
+	const originalKeys = Object.keys(headers);
+	return Object.keys(headers).map((k) => k.toLocaleLowerCase()).reduce((acc, key, index) => {
+		acc[key] = headers[originalKeys[index]];
+		return acc;
+	}, {});
+};
+/**
+* Builds a string of url parameters that
+* @param params A map of url parameters
+* @param shouldEncode true if you should encodeURIComponent() the values (true by default)
+*/
+var buildUrlParams = (params, shouldEncode = true) => {
+	if (!params) return null;
+	return Object.entries(params).reduce((accumulator, entry) => {
+		const [key, value] = entry;
+		let encodedValue;
+		let item;
+		if (Array.isArray(value)) {
+			item = "";
+			value.forEach((str) => {
+				encodedValue = shouldEncode ? encodeURIComponent(str) : str;
+				item += `${key}=${encodedValue}&`;
+			});
+			item.slice(0, -1);
+		} else {
+			encodedValue = shouldEncode ? encodeURIComponent(value) : value;
+			item = `${key}=${encodedValue}`;
+		}
+		return `${accumulator}&${item}`;
+	}, "").substr(1);
+};
+/**
+* Build the RequestInit object based on the options passed into the initial request
+* @param options The Http plugin options
+* @param extra Any extra RequestInit values
+*/
+var buildRequestInit = (options, extra = {}) => {
+	const output = Object.assign({
+		method: options.method || "GET",
+		headers: options.headers
+	}, extra);
+	const type = normalizeHttpHeaders(options.headers)["content-type"] || "";
+	if (typeof options.data === "string") output.body = options.data;
+	else if (type.includes("application/x-www-form-urlencoded")) {
+		const params = new URLSearchParams();
+		for (const [key, value] of Object.entries(options.data || {})) params.set(key, value);
+		output.body = params.toString();
+	} else if (type.includes("multipart/form-data") || options.data instanceof FormData) {
+		const form = new FormData();
+		if (options.data instanceof FormData) options.data.forEach((value, key) => {
+			form.append(key, value);
+		});
+		else for (const key of Object.keys(options.data)) form.append(key, options.data[key]);
+		output.body = form;
+		const headers = new Headers(output.headers);
+		headers.delete("content-type");
+		output.headers = headers;
+	} else if (type.includes("application/json") || typeof options.data === "object") output.body = JSON.stringify(options.data);
+	return output;
+};
+var CapacitorHttpPluginWeb = class extends WebPlugin {
+	/**
+	* Perform an Http request given a set of options
+	* @param options Options to build the HTTP request
+	*/
+	async request(options) {
+		const requestInit = buildRequestInit(options, options.webFetchExtra);
+		const urlParams = buildUrlParams(options.params, options.shouldEncodeUrlParams);
+		const url = urlParams ? `${options.url}?${urlParams}` : options.url;
+		const response = await fetch(url, requestInit);
+		const contentType = response.headers.get("content-type") || "";
+		let { responseType = "text" } = response.ok ? options : {};
+		if (contentType.includes("application/json")) responseType = "json";
+		let data;
+		let blob;
+		switch (responseType) {
+			case "arraybuffer":
+			case "blob":
+				blob = await response.blob();
+				data = await readBlobAsBase64(blob);
+				break;
+			case "json":
+				data = await response.json();
+				break;
+			default: data = await response.text();
+		}
+		const headers = {};
+		response.headers.forEach((value, key) => {
+			headers[key] = value;
+		});
+		return {
+			data,
+			headers,
+			status: response.status,
+			url: response.url
+		};
+	}
+	/**
+	* Perform an Http GET request given a set of options
+	* @param options Options to build the HTTP request
+	*/
+	async get(options) {
+		return this.request(Object.assign(Object.assign({}, options), { method: "GET" }));
+	}
+	/**
+	* Perform an Http POST request given a set of options
+	* @param options Options to build the HTTP request
+	*/
+	async post(options) {
+		return this.request(Object.assign(Object.assign({}, options), { method: "POST" }));
+	}
+	/**
+	* Perform an Http PUT request given a set of options
+	* @param options Options to build the HTTP request
+	*/
+	async put(options) {
+		return this.request(Object.assign(Object.assign({}, options), { method: "PUT" }));
+	}
+	/**
+	* Perform an Http PATCH request given a set of options
+	* @param options Options to build the HTTP request
+	*/
+	async patch(options) {
+		return this.request(Object.assign(Object.assign({}, options), { method: "PATCH" }));
+	}
+	/**
+	* Perform an Http DELETE request given a set of options
+	* @param options Options to build the HTTP request
+	*/
+	async delete(options) {
+		return this.request(Object.assign(Object.assign({}, options), { method: "DELETE" }));
+	}
+};
+registerPlugin("CapacitorHttp", { web: () => new CapacitorHttpPluginWeb() });
+/******** END HTTP PLUGIN ********/
+/******** SYSTEM BARS PLUGIN ********/
+/**
+* Available status bar styles.
+*/
+var SystemBarsStyle;
+(function(SystemBarsStyle) {
+	/**
+	* Light system bar content on a dark background.
+	*
+	* @since 8.0.0
+	*/
+	SystemBarsStyle["Dark"] = "DARK";
+	/**
+	* For dark system bar content on a light background.
+	*
+	* @since 8.0.0
+	*/
+	SystemBarsStyle["Light"] = "LIGHT";
+	/**
+	* The style is based on the device appearance or the underlying content.
+	* If the device is using Dark mode, the system bars content will be light.
+	* If the device is using Light mode, the system bars content will be dark.
+	*
+	* @since 8.0.0
+	*/
+	SystemBarsStyle["Default"] = "DEFAULT";
+})(SystemBarsStyle || (SystemBarsStyle = {}));
+/**
+* Available system bar types.
+*/
+var SystemBarType;
+(function(SystemBarType) {
+	/**
+	* The top status bar on both Android and iOS.
+	*
+	* @since 8.0.0
+	*/
+	SystemBarType["StatusBar"] = "StatusBar";
+	/**
+	* The navigation bar (or gesture bar on iOS) on both Android and iOS.
+	*
+	* @since 8.0.0
+	*/
+	SystemBarType["NavigationBar"] = "NavigationBar";
+})(SystemBarType || (SystemBarType = {}));
+var SystemBarsPluginWeb = class extends WebPlugin {
+	async setStyle() {
+		this.unavailable("not available for web");
+	}
+	async setAnimation() {
+		this.unavailable("not available for web");
+	}
+	async show() {
+		this.unavailable("not available for web");
+	}
+	async hide() {
+		this.unavailable("not available for web");
+	}
+};
+registerPlugin("SystemBars", { web: () => new SystemBarsPluginWeb() });
+// src/types/dashboard.ts
 var kMotorErrorDefs = [
 	{
 		bit: 0,
@@ -13548,6 +14125,18 @@ function buildSampleFardriverHex(speedKmh = 46) {
 	buf[15] = crc >> 8 & 255;
 	return bytesToHex(buf);
 }
+function buildJkCommandFrame(reg) {
+	const cmd = /* @__PURE__ */ new Uint8Array(20);
+	cmd[0] = 170;
+	cmd[1] = 85;
+	cmd[2] = 144;
+	cmd[3] = 235;
+	cmd[4] = reg & 255;
+	let sum = 0;
+	for (let i = 0; i < 19; i++) sum += cmd[i];
+	cmd[19] = sum & 255;
+	return cmd;
+}
 function parseJkBms300ByteFrame(buf, nowMs = Date.now()) {
 	if (buf.length < 300) return null;
 	if (buf[0] !== 85 || buf[1] !== 170 || buf[2] !== 235 || buf[3] !== 144) return null;
@@ -13614,6 +14203,16 @@ function parseJkBms300ByteFrame(buf, nowMs = Date.now()) {
 		dischargeMosOn: true,
 		lastUpdatedMs: nowMs
 	};
+}
+function buildAntQueryCommand() {
+	return new Uint8Array([
+		219,
+		219,
+		0,
+		0,
+		0,
+		0
+	]);
 }
 function parseAntBmsFrame(buf, nowMs = Date.now()) {
 	if (buf.length < 140) return null;
@@ -13693,6 +14292,17 @@ function buildSampleAntHex() {
 	buf[104] = 1;
 	buf[105] = 1;
 	return bytesToHex(buf);
+}
+function buildDalyCommand(dataId) {
+	const cmd = /* @__PURE__ */ new Uint8Array(13);
+	cmd[0] = 165;
+	cmd[1] = 64;
+	cmd[2] = dataId & 255;
+	cmd[3] = 8;
+	let sum = 0;
+	for (let i = 0; i < 12; i++) sum += cmd[i];
+	cmd[12] = sum & 255;
+	return cmd;
 }
 function parseDaly13ByteFrame(buf, current, nowMs = Date.now()) {
 	if (buf.length < 13 || buf[0] !== 165) return null;
@@ -13812,7 +14422,7 @@ function buildSampleDalyHex() {
 	cmd[12] = sum & 255;
 	return bytesToHex(cmd);
 }
-new Uint8Array([
+var JBD_CMD_BASIC = new Uint8Array([
 	221,
 	165,
 	3,
@@ -13821,7 +14431,7 @@ new Uint8Array([
 	253,
 	119
 ]);
-new Uint8Array([
+var JBD_CMD_CELLS = new Uint8Array([
 	221,
 	165,
 	4,
@@ -14181,6 +14791,1169 @@ function downloadTextFile(filename, content, mime = "text/plain;charset=utf-8") 
 	document.body.removeChild(a);
 	URL.revokeObjectURL(url);
 }
+// node_modules/@capacitor-community/bluetooth-le/dist/esm/definitions.js
+/**
+* Android scan mode
+*/
+var ScanMode;
+(function(ScanMode) {
+	/**
+	* Perform Bluetooth LE scan in low power mode. This mode is enforced if the scanning application is not in foreground.
+	* https://developer.android.com/reference/android/bluetooth/le/ScanSettings#SCAN_MODE_LOW_POWER
+	*/
+	ScanMode[ScanMode["SCAN_MODE_LOW_POWER"] = 0] = "SCAN_MODE_LOW_POWER";
+	/**
+	* Perform Bluetooth LE scan in balanced power mode. (default) Scan results are returned at a rate that provides a good trade-off between scan frequency and power consumption.
+	* https://developer.android.com/reference/android/bluetooth/le/ScanSettings#SCAN_MODE_BALANCED
+	*/
+	ScanMode[ScanMode["SCAN_MODE_BALANCED"] = 1] = "SCAN_MODE_BALANCED";
+	/**
+	* Scan using highest duty cycle. It's recommended to only use this mode when the application is running in the foreground.
+	* https://developer.android.com/reference/android/bluetooth/le/ScanSettings#SCAN_MODE_LOW_LATENCY
+	*/
+	ScanMode[ScanMode["SCAN_MODE_LOW_LATENCY"] = 2] = "SCAN_MODE_LOW_LATENCY";
+})(ScanMode || (ScanMode = {}));
+/**
+* Android scan PHY. Mirrors `android.bluetooth.BluetoothDevice.PHY_LE_1M`, `PHY_LE_2M` and
+* `PHY_LE_CODED`, plus `android.bluetooth.le.ScanSettings.PHY_LE_ALL_SUPPORTED`.
+* https://developer.android.com/reference/android/bluetooth/BluetoothDevice
+*/
+var ScanPhy;
+(function(ScanPhy) {
+	/**
+	* Bluetooth LE 1M PHY.
+	*/
+	ScanPhy[ScanPhy["PHY_LE_1M"] = 1] = "PHY_LE_1M";
+	/**
+	* Bluetooth LE 2M PHY.
+	*/
+	ScanPhy[ScanPhy["PHY_LE_2M"] = 2] = "PHY_LE_2M";
+	/**
+	* Bluetooth LE Coded PHY.
+	*/
+	ScanPhy[ScanPhy["PHY_LE_CODED"] = 3] = "PHY_LE_CODED";
+	/**
+	* All supported PHYs.
+	*/
+	ScanPhy[ScanPhy["PHY_LE_ALL_SUPPORTED"] = 255] = "PHY_LE_ALL_SUPPORTED";
+})(ScanPhy || (ScanPhy = {}));
+/**
+* Android connection priority used in `requestConnectionPriority`
+*/
+var ConnectionPriority;
+(function(ConnectionPriority) {
+	/**
+	* Use the connection parameters recommended by the Bluetooth SIG. This is the default value if no connection parameter update is requested.
+	* https://developer.android.com/reference/android/bluetooth/BluetoothGatt#CONNECTION_PRIORITY_BALANCED
+	*/
+	ConnectionPriority[ConnectionPriority["CONNECTION_PRIORITY_BALANCED"] = 0] = "CONNECTION_PRIORITY_BALANCED";
+	/**
+	* Request a high priority, low latency connection. An application should only request high priority connection parameters to transfer large amounts of data over LE quickly. Once the transfer is complete, the application should request CONNECTION_PRIORITY_BALANCED connection parameters to reduce energy use.
+	* https://developer.android.com/reference/android/bluetooth/BluetoothGatt#CONNECTION_PRIORITY_HIGH
+	*/
+	ConnectionPriority[ConnectionPriority["CONNECTION_PRIORITY_HIGH"] = 1] = "CONNECTION_PRIORITY_HIGH";
+	/**
+	* Request low power, reduced data rate connection parameters.
+	* https://developer.android.com/reference/android/bluetooth/BluetoothGatt#CONNECTION_PRIORITY_LOW_POWER
+	*/
+	ConnectionPriority[ConnectionPriority["CONNECTION_PRIORITY_LOW_POWER"] = 2] = "CONNECTION_PRIORITY_LOW_POWER";
+})(ConnectionPriority || (ConnectionPriority = {}));
+// node_modules/@capacitor-community/bluetooth-le/dist/esm/conversion.js
+/**
+* Convert an array of numbers into a DataView.
+*/
+function numbersToDataView(value) {
+	return new DataView(Uint8Array.from(value).buffer);
+}
+/**
+* Convert a DataView into an array of numbers.
+*/
+function dataViewToNumbers(value) {
+	return Array.from(new Uint8Array(value.buffer, value.byteOffset, value.byteLength));
+}
+/**
+* Convert a 16 bit UUID into a 128 bit UUID string
+* @param value number, e.g. 0x180d
+* @return string, e.g. '0000180d-0000-1000-8000-00805f9b34fb'
+*/
+function numberToUUID(value) {
+	return `0000${value.toString(16).padStart(4, "0")}-0000-1000-8000-00805f9b34fb`;
+}
+/**
+* Convert a string of hex into a DataView of raw bytes.
+* Note: characters other than [0-9a-fA-F] are ignored
+* @param hex string of values, e.g. "00 01 02" or "000102"
+* @return DataView of raw bytes
+*/
+function hexStringToDataView(hex) {
+	const bin = [];
+	let i, c, isEmpty = 1, buffer = 0;
+	for (i = 0; i < hex.length; i++) {
+		c = hex.charCodeAt(i);
+		if (c > 47 && c < 58 || c > 64 && c < 71 || c > 96 && c < 103) {
+			buffer = buffer << 4 ^ (c > 64 ? c + 9 : c) & 15;
+			if (isEmpty ^= 1) bin.push(buffer & 255);
+		}
+	}
+	return numbersToDataView(bin);
+}
+function dataViewToHexString(value) {
+	return dataViewToNumbers(value).map((n) => {
+		let s = n.toString(16);
+		if (s.length == 1) s = "0" + s;
+		return s;
+	}).join("");
+}
+function webUUIDToString(uuid) {
+	if (typeof uuid === "string") return uuid;
+	else if (typeof uuid === "number") return numberToUUID(uuid);
+	else throw new Error("Invalid UUID");
+}
+function mapToObject(map) {
+	const obj = {};
+	if (!map) return;
+	map.forEach((value, key) => {
+		obj[key.toString()] = value;
+	});
+	return obj;
+}
+/**
+* Convert Data or Uint8Array to Uint8Array.
+* @param value DataView, Uint8Array, or undefined
+* @return Uint8Array or undefined
+*/
+function toUint8Array(value) {
+	if (value === void 0) return;
+	if (typeof value === "string") {
+		const dataView = hexStringToDataView(value);
+		return new Uint8Array(dataView.buffer, dataView.byteOffset, dataView.byteLength);
+	}
+	if (value instanceof DataView) return new Uint8Array(value.buffer, value.byteOffset, value.byteLength);
+	return value;
+}
+/**
+* Convert Data, Uint8Array, or string to hex string.
+* @param value DataView, Uint8Array, or undefined
+* @return hex string or undefined
+*/
+function toHexString(value) {
+	if (value === void 0) return;
+	if (value instanceof DataView) return dataViewToHexString(value);
+	return dataViewToHexString(new DataView(value.buffer, value.byteOffset, value.byteLength));
+}
+/**
+* Convert a DataView to a DataView backed by an ArrayBuffer.
+* If the DataView is backed by a SharedArrayBuffer, this creates a copy.
+* Otherwise, returns the original DataView.
+* @param value DataView to convert
+* @return DataView backed by ArrayBuffer
+*/
+function toArrayBufferDataView(value) {
+	if (typeof SharedArrayBuffer !== "undefined" && value.buffer instanceof SharedArrayBuffer) {
+		const buffer = new Uint8Array(value.buffer, value.byteOffset, value.byteLength).slice().buffer;
+		return new DataView(buffer);
+	}
+	return value;
+}
+// \0vite/preload-helper.js
+var scriptRel = "modulepreload";
+var assetsURL = function(dep) {
+	return "/" + dep;
+};
+var seen = {};
+var isCssPreloadUrl = function isCssPreloadUrl(url) {
+	return url.pathname.endsWith(".css");
+};
+var preloadOnce = function preloadOnce(seen, href, preload) {
+	if (href in seen) return seen[href];
+	const promise = preload();
+	if (!promise) {
+		seen[href] = void 0;
+		return;
+	}
+	const preloadPromise = promise.then(() => {
+		seen[href] = void 0;
+	}, (err) => {
+		seen[href] = void 0;
+		throw err;
+	});
+	seen[href] = preloadPromise;
+	return preloadPromise;
+};
+var __vitePreload = function preload(baseModule, deps, importerUrl) {
+	let promise = Promise.resolve();
+	if (deps && deps.length > 0) {
+		let preloadedHrefs;
+		const cspNonceMeta = document.querySelector("meta[property=csp-nonce]");
+		const cspNonce = cspNonceMeta?.nonce || cspNonceMeta?.getAttribute("nonce");
+		function allSettled(promises) {
+			return Promise.all(promises.map((p) => Promise.resolve(p).then((value) => ({
+				status: "fulfilled",
+				value
+			}), (reason) => ({
+				status: "rejected",
+				reason
+			}))));
+		}
+		function importMetaResolve(specifier) {
+			if (import.meta.resolve) return new URL(import.meta.resolve(specifier));
+			return new URL(
+				specifier,
+				/** #__KEEP__ */
+				import.meta.url
+			);
+		}
+		promise = allSettled(deps.map((depString) => {
+			depString = assetsURL(depString, importerUrl);
+			const dep = importMetaResolve(depString);
+			const isCss = isCssPreloadUrl(dep);
+			return preloadOnce(seen, dep.href, () => {
+				if (preloadedHrefs === void 0) {
+					preloadedHrefs = {
+						all: /* @__PURE__ */ new Set(),
+						styles: /* @__PURE__ */ new Set()
+					};
+					const links = document.getElementsByTagName("link");
+					for (let i = links.length - 1; i >= 0; i--) {
+						const link = links[i];
+						preloadedHrefs.all.add(link.href);
+						if (link.rel === "stylesheet") preloadedHrefs.styles.add(link.href);
+					}
+				}
+				if ((isCss ? preloadedHrefs.styles : preloadedHrefs.all).has(dep.href)) return;
+				const link = document.createElement("link");
+				link.rel = isCss ? "stylesheet" : scriptRel;
+				if (!isCss) link.as = "script";
+				link.crossOrigin = "";
+				link.href = dep.href;
+				if (cspNonce) link.setAttribute("nonce", cspNonce);
+				document.head.appendChild(link);
+				if (isCss) return new Promise((res, rej) => {
+					const handleSettle = (e) => {
+						link.removeEventListener("load", handleSettle);
+						link.removeEventListener("error", handleSettle);
+						if (e.type === "error") rej(/* @__PURE__ */ new Error(`Unable to preload CSS for ${dep}`));
+						else res(e);
+					};
+					link.addEventListener("load", handleSettle);
+					link.addEventListener("error", handleSettle);
+				});
+			});
+		}).filter((p) => p !== void 0));
+	}
+	function handlePreloadError(err) {
+		const e = new Event("vite:preloadError", { cancelable: true });
+		e.payload = err;
+		window.dispatchEvent(e);
+		if (!e.defaultPrevented) throw err;
+	}
+	return promise.then((res) => {
+		for (const item of res || []) {
+			if (item.status !== "rejected") continue;
+			handlePreloadError(item.reason);
+		}
+		return baseModule().catch(handlePreloadError);
+	});
+};
+// node_modules/@capacitor-community/bluetooth-le/dist/esm/plugin.js
+var BluetoothLe = registerPlugin("BluetoothLe", { web: () => __vitePreload(() => import("./web-Cw1MX89F.js").then((m) => new m.BluetoothLeWeb()), []) });
+// node_modules/@capacitor-community/bluetooth-le/dist/esm/queue.js
+var makeQueue = () => {
+	let currentTask = Promise.resolve();
+	return (fn) => new Promise((resolve, reject) => {
+		currentTask = currentTask.then(() => fn()).then(resolve).catch(reject);
+	});
+};
+function getQueue(enabled) {
+	if (enabled) return makeQueue();
+	return (fn) => fn();
+}
+// node_modules/@capacitor-community/bluetooth-le/dist/esm/validators.js
+function parseUUID(uuid) {
+	if (typeof uuid !== "string") throw new Error(`Invalid UUID type ${typeof uuid}. Expected string.`);
+	uuid = uuid.toLowerCase();
+	if (!(uuid.search(/^[0-9a-f]{8}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{12}$/) >= 0)) throw new Error(`Invalid UUID format ${uuid}. Expected 128 bit string (e.g. "0000180d-0000-1000-8000-00805f9b34fb").`);
+	return uuid;
+}
+// node_modules/@capacitor-community/bluetooth-le/dist/esm/bleClient.js
+var BleClientClass = class {
+	constructor() {
+		this.scanListener = null;
+		this.eventListeners = /* @__PURE__ */ new Map();
+		this.queue = getQueue(true);
+	}
+	enableQueue() {
+		this.queue = getQueue(true);
+	}
+	disableQueue() {
+		this.queue = getQueue(false);
+	}
+	async initialize(options) {
+		await this.queue(async () => {
+			await BluetoothLe.initialize(options);
+		});
+	}
+	async isEnabled() {
+		return await this.queue(async () => {
+			return (await BluetoothLe.isEnabled()).value;
+		});
+	}
+	async requestEnable() {
+		await this.queue(async () => {
+			await BluetoothLe.requestEnable();
+		});
+	}
+	async enable() {
+		await this.queue(async () => {
+			await BluetoothLe.enable();
+		});
+	}
+	async disable() {
+		await this.queue(async () => {
+			await BluetoothLe.disable();
+		});
+	}
+	async startEnabledNotifications(callback) {
+		await this.queue(async () => {
+			var _a;
+			const key = `onEnabledChanged`;
+			await ((_a = this.eventListeners.get(key)) === null || _a === void 0 ? void 0 : _a.remove());
+			const listener = await BluetoothLe.addListener(key, (result) => {
+				callback(result.value);
+			});
+			this.eventListeners.set(key, listener);
+			await BluetoothLe.startEnabledNotifications();
+		});
+	}
+	async stopEnabledNotifications() {
+		await this.queue(async () => {
+			var _a;
+			const key = `onEnabledChanged`;
+			await ((_a = this.eventListeners.get(key)) === null || _a === void 0 ? void 0 : _a.remove());
+			this.eventListeners.delete(key);
+			await BluetoothLe.stopEnabledNotifications();
+		});
+	}
+	async isLocationEnabled() {
+		return await this.queue(async () => {
+			return (await BluetoothLe.isLocationEnabled()).value;
+		});
+	}
+	async openLocationSettings() {
+		await this.queue(async () => {
+			await BluetoothLe.openLocationSettings();
+		});
+	}
+	async openBluetoothSettings() {
+		await this.queue(async () => {
+			await BluetoothLe.openBluetoothSettings();
+		});
+	}
+	async openAppSettings() {
+		await this.queue(async () => {
+			await BluetoothLe.openAppSettings();
+		});
+	}
+	async setDisplayStrings(displayStrings) {
+		await this.queue(async () => {
+			await BluetoothLe.setDisplayStrings(displayStrings);
+		});
+	}
+	async requestDevice(options) {
+		options = options ? this.validateRequestBleDeviceOptions(options) : void 0;
+		return await this.queue(async () => {
+			return await BluetoothLe.requestDevice(options);
+		});
+	}
+	async requestLEScan(options, callback) {
+		options = this.validateRequestBleDeviceOptions(options);
+		await this.queue(async () => {
+			var _a;
+			await ((_a = this.scanListener) === null || _a === void 0 ? void 0 : _a.remove());
+			this.scanListener = await BluetoothLe.addListener("onScanResult", (resultInternal) => {
+				callback(Object.assign(Object.assign({}, resultInternal), {
+					manufacturerData: this.convertObject(resultInternal.manufacturerData),
+					serviceData: this.convertObject(resultInternal.serviceData),
+					rawAdvertisement: resultInternal.rawAdvertisement ? this.convertValue(resultInternal.rawAdvertisement) : void 0
+				}));
+			});
+			await BluetoothLe.requestLEScan(options);
+		});
+	}
+	async stopLEScan() {
+		await this.queue(async () => {
+			var _a;
+			await ((_a = this.scanListener) === null || _a === void 0 ? void 0 : _a.remove());
+			this.scanListener = null;
+			await BluetoothLe.stopLEScan();
+		});
+	}
+	async getDevices(deviceIds) {
+		if (!Array.isArray(deviceIds)) throw new Error("deviceIds must be an array");
+		return this.queue(async () => {
+			return (await BluetoothLe.getDevices({ deviceIds })).devices;
+		});
+	}
+	async getConnectedDevices(services) {
+		if (!Array.isArray(services)) throw new Error("services must be an array");
+		services = services.map(parseUUID);
+		return this.queue(async () => {
+			return (await BluetoothLe.getConnectedDevices({ services })).devices;
+		});
+	}
+	async getBondedDevices() {
+		return this.queue(async () => {
+			return (await BluetoothLe.getBondedDevices()).devices;
+		});
+	}
+	async connect(deviceId, onDisconnect, options) {
+		await this.queue(async () => {
+			var _a;
+			if (onDisconnect) {
+				const key = `disconnected|${deviceId}`;
+				await ((_a = this.eventListeners.get(key)) === null || _a === void 0 ? void 0 : _a.remove());
+				const listener = await BluetoothLe.addListener(key, () => {
+					onDisconnect(deviceId);
+				});
+				this.eventListeners.set(key, listener);
+			}
+			await BluetoothLe.connect(Object.assign({ deviceId }, options));
+		});
+	}
+	async createBond(deviceId, options) {
+		await this.queue(async () => {
+			await BluetoothLe.createBond(Object.assign({ deviceId }, options));
+		});
+	}
+	async isBonded(deviceId) {
+		return await this.queue(async () => {
+			return (await BluetoothLe.isBonded({ deviceId })).value;
+		});
+	}
+	async disconnect(deviceId) {
+		await this.queue(async () => {
+			await BluetoothLe.disconnect({ deviceId });
+		});
+	}
+	async getServices(deviceId) {
+		return await this.queue(async () => {
+			return (await BluetoothLe.getServices({ deviceId })).services;
+		});
+	}
+	async discoverServices(deviceId) {
+		await this.queue(async () => {
+			await BluetoothLe.discoverServices({ deviceId });
+		});
+	}
+	async getMtu(deviceId) {
+		return await this.queue(async () => {
+			return (await BluetoothLe.getMtu({ deviceId })).value;
+		});
+	}
+	async requestConnectionPriority(deviceId, connectionPriority) {
+		await this.queue(async () => {
+			await BluetoothLe.requestConnectionPriority({
+				deviceId,
+				connectionPriority
+			});
+		});
+	}
+	async readRssi(deviceId) {
+		return await this.queue(async () => {
+			const result = await BluetoothLe.readRssi({ deviceId });
+			return parseFloat(result.value);
+		});
+	}
+	async read(deviceId, service, characteristic, options) {
+		service = parseUUID(service);
+		characteristic = parseUUID(characteristic);
+		return await this.queue(async () => {
+			const result = await BluetoothLe.read(Object.assign({
+				deviceId,
+				service,
+				characteristic
+			}, options));
+			return this.convertValue(result.value);
+		});
+	}
+	async write(deviceId, service, characteristic, value, options) {
+		service = parseUUID(service);
+		characteristic = parseUUID(characteristic);
+		return this.queue(async () => {
+			if (!(value === null || value === void 0 ? void 0 : value.buffer)) throw new Error("Invalid data.");
+			let writeValue = value;
+			if (Capacitor.getPlatform() !== "web") writeValue = dataViewToHexString(value);
+			await BluetoothLe.write(Object.assign({
+				deviceId,
+				service,
+				characteristic,
+				value: writeValue
+			}, options));
+		});
+	}
+	async writeWithoutResponse(deviceId, service, characteristic, value, options) {
+		service = parseUUID(service);
+		characteristic = parseUUID(characteristic);
+		await this.queue(async () => {
+			if (!(value === null || value === void 0 ? void 0 : value.buffer)) throw new Error("Invalid data.");
+			let writeValue = value;
+			if (Capacitor.getPlatform() !== "web") writeValue = dataViewToHexString(value);
+			await BluetoothLe.writeWithoutResponse(Object.assign({
+				deviceId,
+				service,
+				characteristic,
+				value: writeValue
+			}, options));
+		});
+	}
+	async readDescriptor(deviceId, service, characteristic, descriptor, options) {
+		service = parseUUID(service);
+		characteristic = parseUUID(characteristic);
+		descriptor = parseUUID(descriptor);
+		return await this.queue(async () => {
+			const result = await BluetoothLe.readDescriptor(Object.assign({
+				deviceId,
+				service,
+				characteristic,
+				descriptor
+			}, options));
+			return this.convertValue(result.value);
+		});
+	}
+	async writeDescriptor(deviceId, service, characteristic, descriptor, value, options) {
+		service = parseUUID(service);
+		characteristic = parseUUID(characteristic);
+		descriptor = parseUUID(descriptor);
+		return this.queue(async () => {
+			if (!(value === null || value === void 0 ? void 0 : value.buffer)) throw new Error("Invalid data.");
+			let writeValue = value;
+			if (Capacitor.getPlatform() !== "web") writeValue = dataViewToHexString(value);
+			await BluetoothLe.writeDescriptor(Object.assign({
+				deviceId,
+				service,
+				characteristic,
+				descriptor,
+				value: writeValue
+			}, options));
+		});
+	}
+	async startNotifications(deviceId, service, characteristic, callback, options) {
+		service = parseUUID(service);
+		characteristic = parseUUID(characteristic);
+		await this.queue(async () => {
+			var _a;
+			const key = `notification|${deviceId}|${service}|${characteristic}`;
+			await ((_a = this.eventListeners.get(key)) === null || _a === void 0 ? void 0 : _a.remove());
+			const listener = await BluetoothLe.addListener(key, (event) => {
+				callback(this.convertValue(event === null || event === void 0 ? void 0 : event.value));
+			});
+			this.eventListeners.set(key, listener);
+			await BluetoothLe.startNotifications(Object.assign({
+				deviceId,
+				service,
+				characteristic
+			}, options));
+		});
+	}
+	async stopNotifications(deviceId, service, characteristic) {
+		service = parseUUID(service);
+		characteristic = parseUUID(characteristic);
+		await this.queue(async () => {
+			var _a;
+			const key = `notification|${deviceId}|${service}|${characteristic}`;
+			await ((_a = this.eventListeners.get(key)) === null || _a === void 0 ? void 0 : _a.remove());
+			this.eventListeners.delete(key);
+			await BluetoothLe.stopNotifications({
+				deviceId,
+				service,
+				characteristic
+			});
+		});
+	}
+	validateRequestBleDeviceOptions(options) {
+		options = Object.assign({}, options);
+		if (options.services) options.services = options.services.map(parseUUID);
+		if (options.optionalServices) options.optionalServices = options.optionalServices.map(parseUUID);
+		if (options.serviceData && Capacitor.getPlatform() !== "web") options.serviceData = options.serviceData.map((filter) => Object.assign(Object.assign({}, filter), {
+			serviceUuid: parseUUID(filter.serviceUuid),
+			dataPrefix: toHexString(filter.dataPrefix),
+			mask: toHexString(filter.mask)
+		}));
+		if (options.manufacturerData) {
+			if (Capacitor.getPlatform() !== "web") options.manufacturerData = options.manufacturerData.map((filter) => Object.assign(Object.assign({}, filter), {
+				dataPrefix: toHexString(filter.dataPrefix),
+				mask: toHexString(filter.mask)
+			}));
+			else options.manufacturerData = options.manufacturerData.map((filter) => Object.assign(Object.assign({}, filter), {
+				dataPrefix: toUint8Array(filter.dataPrefix),
+				mask: toUint8Array(filter.mask)
+			}));
+		}
+		return options;
+	}
+	convertValue(value) {
+		if (typeof value === "string") return hexStringToDataView(value);
+		else if (value === void 0) return /* @__PURE__ */ new DataView(/* @__PURE__ */ new ArrayBuffer(0));
+		return value;
+	}
+	convertObject(obj) {
+		if (obj === void 0) return;
+		const result = {};
+		for (const key of Object.keys(obj)) result[key] = this.convertValue(obj[key]);
+		return result;
+	}
+};
+var BleClient = new BleClientClass();
+// src/services/bluetoothTransport.ts
+var BluetoothSpp = registerPlugin("BluetoothSpp");
+var OPTIONAL_BLE_SERVICES = [
+	numberToUUID(65504),
+	numberToUUID(65520),
+	numberToUUID(65280),
+	"6e400001-b5a3-f393-e0a9-e50e24dcca9e",
+	"4fafc201-1fb5-459e-8fcc-c5c9c331914b"
+];
+var FrameStreamAssembler = class {
+	constructor() {
+		this.buf = [];
+		this.textBuf = "";
+	}
+	pushChunk(chunk, mode, onLine, onFrame) {
+		if (mode === "text") {
+			const decoded = new TextDecoder("utf-8", { fatal: false }).decode(chunk);
+			this.textBuf += decoded;
+			const lines = this.textBuf.split(/\r?\n|\r/);
+			this.textBuf = lines.pop() ?? "";
+			for (const raw of lines) {
+				const line = raw.trim();
+				if (line) onLine(line);
+			}
+			if (this.textBuf.length > 512) {
+				onLine(this.textBuf.trim());
+				this.textBuf = "";
+			}
+			return;
+		}
+		for (let i = 0; i < chunk.length; i++) this.buf.push(chunk[i]);
+		if (this.buf.length > 2048) this.buf = this.buf.slice(-1024);
+		if (mode === "fardriver") {
+			while (this.buf.length >= 16) {
+				const idx = this.buf.indexOf(170);
+				if (idx < 0) {
+					this.buf = [];
+					break;
+				}
+				if (idx > 0) this.buf = this.buf.slice(idx);
+				if (this.buf.length < 16) break;
+				const frame = new Uint8Array(this.buf.slice(0, 16));
+				this.buf = this.buf.slice(16);
+				onFrame(frame);
+			}
+			return;
+		}
+		if (mode === "jk") {
+			while (this.buf.length >= 300) {
+				const idx = findSubseq(this.buf, [
+					85,
+					170,
+					235,
+					144
+				]);
+				if (idx < 0) {
+					if (this.buf.length > 32) this.buf = this.buf.slice(-3);
+					break;
+				}
+				if (idx > 0) this.buf = this.buf.slice(idx);
+				if (this.buf.length < 300) break;
+				const frame = new Uint8Array(this.buf.slice(0, 300));
+				this.buf = this.buf.slice(300);
+				onFrame(frame);
+			}
+			return;
+		}
+		if (mode === "ant") {
+			while (this.buf.length >= 140) {
+				const idx = findSubseq(this.buf, [
+					170,
+					85,
+					170,
+					255
+				]);
+				if (idx < 0) {
+					if (this.buf.length > 32) this.buf = this.buf.slice(-3);
+					break;
+				}
+				if (idx > 0) this.buf = this.buf.slice(idx);
+				if (this.buf.length < 140) break;
+				const frame = new Uint8Array(this.buf.slice(0, 140));
+				this.buf = this.buf.slice(140);
+				onFrame(frame);
+			}
+			return;
+		}
+		if (mode === "daly") {
+			while (this.buf.length >= 13) {
+				const idx = this.buf.indexOf(165);
+				if (idx < 0) {
+					this.buf = [];
+					break;
+				}
+				if (idx > 0) this.buf = this.buf.slice(idx);
+				if (this.buf.length < 13) break;
+				const frame = new Uint8Array(this.buf.slice(0, 13));
+				this.buf = this.buf.slice(13);
+				onFrame(frame);
+			}
+			return;
+		}
+		if (mode === "jbd") while (this.buf.length >= 7) {
+			const idx = this.buf.indexOf(221);
+			if (idx < 0) {
+				this.buf = [];
+				break;
+			}
+			if (idx > 0) this.buf = this.buf.slice(idx);
+			if (this.buf.length < 7) break;
+			const totalLen = 4 + this.buf[3] + 3;
+			if (totalLen > 256) {
+				this.buf.shift();
+				continue;
+			}
+			if (this.buf.length < totalLen) break;
+			if (this.buf[totalLen - 1] === 119) {
+				const frame = new Uint8Array(this.buf.slice(0, totalLen));
+				this.buf = this.buf.slice(totalLen);
+				onFrame(frame);
+			} else this.buf.shift();
+		}
+	}
+};
+function findSubseq(haystack, needle) {
+	outer: for (let i = 0; i <= haystack.length - needle.length; i++) {
+		for (let j = 0; j < needle.length; j++) if (haystack[i + j] !== needle[j]) continue outer;
+		return i;
+	}
+	return -1;
+}
+function classifyDiscoveredDevice(name, isBle, preferredController, preferredBms, uuids) {
+	const upper = (name || "").toUpperCase();
+	const uuidStr = (uuids || []).join(",").toLowerCase();
+	if (upper.includes("ESP32") && (upper.includes("BAT2") || upper.includes("2") || upper.includes("CAN"))) return { deviceType: "esp2" };
+	if (upper.includes("ESP") || upper.includes("BRIDGE") || upper.includes("MATRIX")) return { deviceType: "esp1" };
+	if (upper.includes("FARDRIVER") || upper.includes("NANJING") || upper.includes("ND72") || upper.includes("ND84")) return {
+		deviceType: "motor",
+		controllerProtocol: "fardriver"
+	};
+	if (upper.includes("ANT")) return {
+		deviceType: "jikong",
+		bmsProtocol: "ant"
+	};
+	if (upper.includes("DALY") || upper.includes("DL-") || uuidStr.includes("fff0")) return {
+		deviceType: "jikong",
+		bmsProtocol: "daly"
+	};
+	if (upper.includes("JBD") || upper.includes("XIAOXIANG") || uuidStr.includes("ff00")) return {
+		deviceType: "jikong",
+		bmsProtocol: "jbd"
+	};
+	if (upper.includes("JK") || upper.includes("JIKONG") || upper.includes("BD6") || upper.includes("BD4")) return {
+		deviceType: "jikong",
+		bmsProtocol: "jk"
+	};
+	if (!isBle || upper.includes("MID") || upper.includes("GESITS") || upper.includes("HC-05") || upper.includes("HC-06") || upper.includes("SPP")) return {
+		deviceType: "motor",
+		controllerProtocol: "motor_mid"
+	};
+	return {
+		deviceType: preferredController === "fardriver" ? "motor" : "jikong",
+		controllerProtocol: preferredController === "fardriver" ? "fardriver" : void 0,
+		bmsProtocol: preferredController === "fardriver" ? void 0 : preferredBms
+	};
+}
+var BluetoothTransportManager = class {
+	constructor() {
+		this.activeSlots = /* @__PURE__ */ new Map();
+		this.bleInitialized = false;
+	}
+	async ensureBleInit() {
+		if (this.bleInitialized) return;
+		await BleClient.initialize({ androidNeverForLocation: false });
+		this.bleInitialized = true;
+	}
+	async scanRealDevices(preferredController, preferredBms, onPartialUpdate, onLog) {
+		const foundMap = /* @__PURE__ */ new Map();
+		const emitUpdate = () => {
+			onPartialUpdate(Array.from(foundMap.values()).sort((a, b) => {
+				if (a.isBle !== b.isBle) return a.isBle ? 1 : -1;
+				if (a.isPaired !== b.isPaired) return a.isPaired ? -1 : 1;
+				return b.rssi - a.rssi;
+			}));
+		};
+		if (Capacitor.isNativePlatform()) {
+			try {
+				const pairedRes = await BluetoothSpp.getPairedDevices();
+				for (const d of pairedRes.devices || []) {
+					const supportsClassicSpp = d.type !== 2;
+					const isBleOnly = d.type === 2;
+					const cls = classifyDiscoveredDevice(d.name, isBleOnly, preferredController, preferredBms);
+					foundMap.set(d.address, {
+						name: d.name || d.address,
+						address: d.address,
+						isBle: isBleOnly,
+						rssi: d.rssi ?? -55,
+						isPaired: true,
+						deviceType: supportsClassicSpp && cls.deviceType === "motor" ? "motor" : cls.deviceType,
+						controllerProtocol: supportsClassicSpp && cls.deviceType === "motor" ? "motor_mid" : cls.controllerProtocol,
+						bmsProtocol: cls.bmsProtocol
+					});
+				}
+				emitUpdate();
+				onLog("SPP", `Ditemukan ${(pairedRes.devices || []).length} perangkat Bluetooth paired.`);
+			} catch (err) {
+				onLog("SPP", `Gagal membaca perangkat paired SPP: ${String(err)}`, true);
+			}
+			let classicListener;
+			try {
+				classicListener = await BluetoothSpp.addListener("sppDeviceFound", (d) => {
+					const isBleOnly = d.type === 2;
+					const cls = classifyDiscoveredDevice(d.name, isBleOnly, preferredController, preferredBms);
+					if (!foundMap.has(d.address)) {
+						foundMap.set(d.address, {
+							name: d.name || d.address,
+							address: d.address,
+							isBle: isBleOnly,
+							rssi: d.rssi ?? -70,
+							isPaired: d.isPaired,
+							...cls
+						});
+						emitUpdate();
+					}
+				});
+			} catch {}
+			const sppScanPromise = BluetoothSpp.scanClassic().catch((err) => {
+				onLog("SPP", `Discovery Classic selesai/skip: ${String(err)}`, false);
+				return { devices: [] };
+			});
+			const bleScanPromise = (async () => {
+				try {
+					await this.ensureBleInit();
+					await BleClient.requestLEScan({ allowDuplicates: false }, (res) => {
+						const id = res.device.deviceId;
+						const name = res.device.name || res.localName || "";
+						if (!name && foundMap.has(id)) return;
+						const existing = foundMap.get(id);
+						if (existing && !existing.isBle) return;
+						const cls = classifyDiscoveredDevice(name || id, true, preferredController, preferredBms, res.uuids);
+						foundMap.set(id, {
+							name: name || `BLE ${id}`,
+							address: id,
+							isBle: true,
+							rssi: res.rssi ?? -72,
+							isPaired: existing?.isPaired ?? false,
+							...cls
+						});
+						emitUpdate();
+					});
+					await new Promise((r) => setTimeout(r, 5500));
+					await BleClient.stopLEScan();
+				} catch (err) {
+					onLog("BLE", `Scan BLE gagal: ${String(err)}`, true);
+				}
+			})();
+			await Promise.all([sppScanPromise, bleScanPromise]);
+			await classicListener?.remove();
+			emitUpdate();
+			return { devices: Array.from(foundMap.values()).sort((a, b) => {
+				if (a.isBle !== b.isBle) return a.isBle ? 1 : -1;
+				if (a.isPaired !== b.isPaired) return a.isPaired ? -1 : 1;
+				return b.rssi - a.rssi;
+			}) };
+		}
+		try {
+			await this.ensureBleInit();
+			const bleDev = await BleClient.requestDevice({ optionalServices: OPTIONAL_BLE_SERVICES });
+			const cls = classifyDiscoveredDevice(bleDev.name || bleDev.deviceId, true, preferredController, preferredBms, bleDev.uuids);
+			const item = {
+				name: bleDev.name || "Perangkat BLE",
+				address: bleDev.deviceId,
+				isBle: true,
+				rssi: -50,
+				isPaired: true,
+				...cls
+			};
+			foundMap.set(item.address, item);
+			emitUpdate();
+			onLog("BLE", `Perangkat WebBLE dipilih: ${item.name} (${item.address})`);
+			return { devices: [item] };
+		} catch (err) {
+			onLog("BLE", `Web Bluetooth scan dibatalkan / tidak tersedia: ${err instanceof Error ? err.message : String(err)}`, true);
+			return {
+				devices: [],
+				error: "Web Bluetooth dibatalkan atau browser tidak mendukung BLE/SPP. Di Chrome Android/Desktop pilih perangkat dari dialog; untuk Classic SPP gunakan APK Android atau Web Serial."
+			};
+		}
+	}
+	async connectWebSerialSpp(callbacks) {
+		const serialNav = navigator.serial;
+		if (!serialNav) {
+			callbacks.onLog("SPP", "Browser ini tidak mendukung Web Serial API.", true);
+			return null;
+		}
+		try {
+			const port = await serialNav.requestPort();
+			await port.open({ baudRate: 115200 });
+			await this.disconnectSlot("motor");
+			const addr = `SERIAL-${port.getInfo().usbVendorId ?? "SPP"}`;
+			const abort = new AbortController();
+			const slot = {
+				deviceType: "motor",
+				transport: "webserial",
+				address: addr,
+				name: "MID SPP Serial Port",
+				serialPort: port,
+				serialWriter: port.writable?.getWriter(),
+				serialReaderAbort: abort
+			};
+			this.activeSlots.set("motor", slot);
+			const assembler = new FrameStreamAssembler();
+			if (port.readable) (async () => {
+				const reader = port.readable.getReader();
+				try {
+					while (!abort.signal.aborted) {
+						const { value, done } = await reader.read();
+						if (done) break;
+						if (value) assembler.pushChunk(value, "text", (line) => callbacks.onTextLine("motor", line), () => {});
+					}
+				} catch (err) {
+					callbacks.onLog("SPP", `Serial read berhenti: ${String(err)}`, true);
+				} finally {
+					reader.releaseLock();
+					callbacks.onDisconnected("motor", "Serial terputus");
+				}
+			})();
+			callbacks.onLog("SPP", "Terhubung ke port Serial SPP MID (115200 bps).");
+			return {
+				name: "MID SPP Serial Port",
+				address: addr,
+				isBle: false,
+				rssi: -40,
+				isPaired: true,
+				deviceType: "motor",
+				controllerProtocol: "motor_mid"
+			};
+		} catch (err) {
+			callbacks.onLog("SPP", `Batal memilih port Serial: ${String(err)}`, true);
+			return null;
+		}
+	}
+	async connectDevice(device, opts, callbacks) {
+		await this.disconnectSlot(device.deviceType);
+		if (!device.isBle) {
+			if (!Capacitor.isNativePlatform()) {
+				callbacks.onLog("SPP", "Classic Bluetooth SPP memerlukan APK Android (native) atau tombol Serial SPP di Chrome Desktop.", true);
+				return false;
+			}
+			try {
+				const res = await BluetoothSpp.connect({ address: device.address });
+				const assembler = new FrameStreamAssembler();
+				const l1 = await BluetoothSpp.addListener("sppLine", (ev) => {
+					if (ev.address === device.address && ev.line) callbacks.onTextLine(device.deviceType, ev.line);
+				});
+				const l2 = await BluetoothSpp.addListener("sppBytes", (ev) => {
+					if (ev.address === device.address && ev.hex && opts.controllerProtocol === "fardriver") {
+						const bytes = hexToBytes(ev.hex);
+						assembler.pushChunk(bytes, "fardriver", () => {}, (frame) => callbacks.onBinaryFrame(device.deviceType, frame));
+					}
+				});
+				const l3 = await BluetoothSpp.addListener("sppDisconnected", (ev) => {
+					if (ev.address === device.address) {
+						this.cleanupSlot(device.deviceType);
+						callbacks.onDisconnected(device.deviceType, "Koneksi SPP terputus");
+					}
+				});
+				this.activeSlots.set(device.deviceType, {
+					deviceType: device.deviceType,
+					transport: "spp",
+					address: device.address,
+					name: res.name || device.name,
+					sppListeners: [
+						l1,
+						l2,
+						l3
+					]
+				});
+				callbacks.onLog("SPP", `RFCOMM SPP tersambung ke ${device.name} (${device.address})`);
+				return true;
+			} catch (err) {
+				callbacks.onLog("SPP", `Gagal koneksi SPP: ${String(err)}`, true);
+				return false;
+			}
+		}
+		try {
+			await this.ensureBleInit();
+			await BleClient.connect(device.address, () => {
+				this.cleanupSlot(device.deviceType);
+				callbacks.onDisconnected(device.deviceType, "Koneksi BLE terputus");
+			}, { timeout: 12e3 });
+			const picked = pickBleCharacteristics(await BleClient.getServices(device.address));
+			if (!picked) {
+				callbacks.onLog("BLE", `Tidak ditemukan characteristic Notify UART/BMS pada ${device.name}.`, true);
+				await BleClient.disconnect(device.address);
+				return false;
+			}
+			const mode = resolveAssemblerMode(device, opts.controllerProtocol, opts.bmsProtocol);
+			const assembler = new FrameStreamAssembler();
+			await BleClient.startNotifications(device.address, picked.serviceUuid, picked.notifyCharUuid, (dataView) => {
+				const chunk = new Uint8Array(dataView.buffer, dataView.byteOffset, dataView.byteLength);
+				assembler.pushChunk(chunk, mode, (line) => callbacks.onTextLine(device.deviceType, line), (frame) => callbacks.onBinaryFrame(device.deviceType, frame));
+			});
+			const slot = {
+				deviceType: device.deviceType,
+				transport: "ble",
+				address: device.address,
+				name: device.name,
+				serviceUuid: picked.serviceUuid,
+				notifyCharUuid: picked.notifyCharUuid,
+				writeCharUuid: picked.writeCharUuid,
+				canWriteWithoutResponse: picked.canWriteWithoutResponse
+			};
+			if (device.deviceType === "jikong" && picked.writeCharUuid) {
+				let dalyIdx = 0;
+				const dalyCmds = [
+					144,
+					145,
+					146,
+					147,
+					148,
+					149
+				];
+				let jbdToggle = false;
+				const bmsProto = device.bmsProtocol ?? opts.bmsProtocol;
+				const sendPoll = async () => {
+					let payload = null;
+					if (bmsProto === "jk") payload = buildJkCommandFrame(2);
+					else if (bmsProto === "ant") payload = buildAntQueryCommand();
+					else if (bmsProto === "daly") {
+						payload = buildDalyCommand(dalyCmds[dalyIdx % dalyCmds.length]);
+						dalyIdx++;
+					} else if (bmsProto === "jbd") {
+						payload = jbdToggle ? JBD_CMD_CELLS : JBD_CMD_BASIC;
+						jbdToggle = !jbdToggle;
+					}
+					if (payload) await this.writeBleBytes(slot, payload);
+				};
+				sendPoll();
+				slot.pollTimer = window.setInterval(() => {
+					sendPoll();
+				}, bmsProto === "daly" ? 450 : 1200);
+			}
+			this.activeSlots.set(device.deviceType, slot);
+			callbacks.onLog("BLE", `GATT tersambung ke ${device.name} (SVC ${picked.serviceUuid.slice(4, 8).toUpperCase()})`);
+			return true;
+		} catch (err) {
+			callbacks.onLog("BLE", `Gagal koneksi BLE ke ${device.name}: ${String(err)}`, true);
+			return false;
+		}
+	}
+	async writeBleBytes(slot, bytes) {
+		if (!slot.serviceUuid || !slot.writeCharUuid) return;
+		const dv = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+		try {
+			if (slot.canWriteWithoutResponse) await BleClient.writeWithoutResponse(slot.address, slot.serviceUuid, slot.writeCharUuid, dv);
+			else await BleClient.write(slot.address, slot.serviceUuid, slot.writeCharUuid, dv);
+		} catch {
+			try {
+				if (slot.canWriteWithoutResponse) await BleClient.write(slot.address, slot.serviceUuid, slot.writeCharUuid, dv);
+				else await BleClient.writeWithoutResponse(slot.address, slot.serviceUuid, slot.writeCharUuid, dv);
+			} catch {}
+		}
+	}
+	async sendTextCommand(deviceType, text) {
+		const slot = this.activeSlots.get(deviceType);
+		if (!slot) return false;
+		const payloadStr = text.endsWith("\n") ? text : `${text}\r\n`;
+		if (slot.transport === "spp") try {
+			await BluetoothSpp.write({ text: payloadStr });
+			return true;
+		} catch {
+			return false;
+		}
+		if (slot.transport === "webserial" && slot.serialWriter) try {
+			await slot.serialWriter.write(new TextEncoder().encode(payloadStr));
+			return true;
+		} catch {
+			return false;
+		}
+		if (slot.transport === "ble") {
+			await this.writeBleBytes(slot, new TextEncoder().encode(payloadStr));
+			return true;
+		}
+		return false;
+	}
+	async disconnectSlot(deviceType) {
+		const slot = this.activeSlots.get(deviceType);
+		await this.cleanupSlot(deviceType);
+		if (!slot) return;
+		if (slot.transport === "spp") try {
+			await BluetoothSpp.disconnect();
+		} catch {}
+		else if (slot.transport === "ble") try {
+			await BleClient.disconnect(slot.address);
+		} catch {}
+		else if (slot.transport === "webserial") try {
+			slot.serialReaderAbort?.abort();
+			await slot.serialWriter?.close();
+			await slot.serialPort?.close();
+		} catch {}
+	}
+	async cleanupSlot(deviceType) {
+		const slot = this.activeSlots.get(deviceType);
+		if (!slot) return;
+		if (slot.pollTimer !== void 0) window.clearInterval(slot.pollTimer);
+		if (slot.sppListeners) for (const l of slot.sppListeners) try {
+			await l.remove();
+		} catch {}
+		this.activeSlots.delete(deviceType);
+	}
+};
+function resolveAssemblerMode(device, controllerProtocol, bmsProtocol) {
+	if (device.deviceType === "motor") return (device.controllerProtocol ?? controllerProtocol) === "fardriver" ? "fardriver" : "text";
+	if (device.deviceType === "jikong") return device.bmsProtocol ?? bmsProtocol;
+	return "text";
+}
+function pickBleCharacteristics(services) {
+	const preferredOrder = [
+		"ffe0",
+		"fff0",
+		"ff00",
+		"6e400001",
+		"4fafc201"
+	];
+	const sorted = [...services].sort((a, b) => {
+		const ai = preferredOrder.findIndex((p) => a.uuid.toLowerCase().includes(p));
+		const bi = preferredOrder.findIndex((p) => b.uuid.toLowerCase().includes(p));
+		return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi);
+	});
+	for (const svc of sorted) {
+		const notifyChar = svc.characteristics.find((c) => c.properties.notify || c.properties.indicate);
+		if (!notifyChar) continue;
+		const writeChar = svc.characteristics.find((c) => c.properties.writeWithoutResponse || c.properties.write) || notifyChar;
+		return {
+			serviceUuid: svc.uuid,
+			notifyCharUuid: notifyChar.uuid,
+			writeCharUuid: writeChar?.uuid,
+			canWriteWithoutResponse: !!writeChar?.properties.writeWithoutResponse
+		};
+	}
+	return null;
+}
+function hexToBytes(hex) {
+	const clean = hex.replace(/[^0-9a-fA-F]/g, "");
+	const out = new Uint8Array(Math.floor(clean.length / 2));
+	for (let i = 0; i < out.length; i++) out[i] = parseInt(clean.slice(i * 2, i * 2 + 2), 16);
+	return out;
+}
+var bluetoothTransport = new BluetoothTransportManager();
 // src/services/remoteApis.ts
 var cachedMolisSeed = null;
 var RemoteApisService = {
@@ -14814,6 +16587,7 @@ var DashboardProvider = ({ children }) => {
 	const [lastMidFramePreview, setLastMidFramePreview] = (0, import_react.useState)("");
 	const [discoveredDevices, setDiscoveredDevices] = (0, import_react.useState)([]);
 	const [isScanningBle, setIsScanningBle] = (0, import_react.useState)(false);
+	const [scanError, setScanError] = (0, import_react.useState)("");
 	const livePathPointsRef = (0, import_react.useRef)([]);
 	const wasMovingRef = (0, import_react.useRef)(false);
 	const simStepRef = (0, import_react.useRef)(0);
@@ -15118,6 +16892,7 @@ var DashboardProvider = ({ children }) => {
 				const frame = step ? `AT+NAV="${step.instruction.slice(0, 26)}|${Math.round(distToNextStepM)}m|SOC:${Math.round(cur.effective.combinedSocPct ?? 0)}%|RNG:${Math.round(cur.effective.rangeKm ?? 0)}km"` : `AT+NAV="SPD:${Math.round(cur.effective.speedKmh ?? 0)}kmh|PWR:${Math.round(cur.effective.combinedPowerW ?? 0)}W|SOC:${Math.round(cur.effective.combinedSocPct ?? 0)}%"`;
 				setMapsFramesSent((c) => c + 1);
 				setLastMidFramePreview(frame);
+				if (cur.motorConnState === "CONNECTED" && !cur.devSimActive) bluetoothTransport.sendTextCommand("motor", frame);
 			}
 		}, 1e3);
 		return () => clearInterval(timer);
@@ -15166,134 +16941,177 @@ var DashboardProvider = ({ children }) => {
 	]);
 	const scanDevices = (0, import_react.useCallback)(async () => {
 		setIsScanningBle(true);
-		const list = [
-			{
-				name: "GESITS-MID-AT (ORI SPP/BLE)",
-				address: "00:1B:10:66:4A:11",
-				isBle: false,
-				rssi: -52,
-				isPaired: true,
-				deviceType: "motor",
-				controllerProtocol: "motor_mid"
-			},
-			{
-				name: "Fardriver-BLE-ND72450",
-				address: "A4:C1:38:72:45:01",
-				isBle: true,
-				rssi: -49,
-				isPaired: true,
-				deviceType: "motor",
-				controllerProtocol: "fardriver"
-			},
-			{
-				name: "JK-BD6A20S10P (JK-BMS)",
-				address: "C8:47:8C:12:90:AB",
-				isBle: true,
-				rssi: -58,
-				isPaired: true,
-				deviceType: "jikong",
-				bmsProtocol: "jk"
-			},
-			{
-				name: "ANT-BMS-20S (ANT)",
-				address: "AA:55:AA:FF:20:01",
-				isBle: true,
-				rssi: -56,
-				isPaired: true,
-				deviceType: "jikong",
-				bmsProtocol: "ant"
-			},
-			{
-				name: "DALY-SmartBMS-BLE (DALY)",
-				address: "DA:17:88:90:01:A5",
-				isBle: true,
-				rssi: -60,
-				isPaired: true,
-				deviceType: "jikong",
-				bmsProtocol: "daly"
-			},
-			{
-				name: "JBD-SP20S006 (Xiaoxiang)",
-				address: "A5:C2:37:11:03:DD",
-				isBle: true,
-				rssi: -59,
-				isPaired: true,
-				deviceType: "jikong",
-				bmsProtocol: "jbd"
-			},
-			{
-				name: "ESP32-BRIDGE-1 (Kontak/LED)",
-				address: "24:6F:28:9A:11:01",
-				isBle: true,
-				rssi: -61,
-				isPaired: true,
-				deviceType: "esp1"
-			},
-			{
-				name: "ESP32-BAT2-CAN (Pack 2)",
-				address: "24:6F:28:9A:22:02",
-				isBle: true,
-				rssi: -64,
-				isPaired: true,
-				deviceType: "esp2"
-			}
-		];
-		const navBle = navigator.bluetooth;
-		if (navBle) try {
-			const bleDev = await navBle.requestDevice({
-				acceptAllDevices: true,
-				optionalServices: [
-					"0000ffe0-0000-1000-8000-00805f9b34fb",
-					"0000fff0-0000-1000-8000-00805f9b34fb",
-					"0000ff00-0000-1000-8000-00805f9b34fb"
-				]
-			});
-			if (bleDev) {
-				const upper = (bleDev.name || "").toUpperCase();
-				const detectedCtrl = upper.includes("FARDRIVER") ? "fardriver" : void 0;
-				const detectedBms = upper.includes("ANT") ? "ant" : upper.includes("DALY") ? "daly" : upper.includes("JBD") || upper.includes("XIAOXIANG") ? "jbd" : "jk";
-				list.unshift({
-					name: bleDev.name || "Perangkat WebBLE",
-					address: bleDev.id,
-					isBle: true,
-					rssi: -45,
-					isPaired: true,
-					deviceType: detectedCtrl ? "motor" : "jikong",
-					controllerProtocol: detectedCtrl,
-					bmsProtocol: detectedCtrl ? void 0 : detectedBms
-				});
-				addLog("BLE", `Perangkat Web Bluetooth ditemukan: ${bleDev.name || bleDev.id}`);
-			}
-		} catch {}
-		setDiscoveredDevices(list);
+		setScanError("");
+		const result = await bluetoothTransport.scanRealDevices(settings.controllerProtocol, settings.bmsProtocol, (liveList) => setDiscoveredDevices(liveList), addLog);
+		setDiscoveredDevices(result.devices);
+		if (result.error) setScanError(result.error);
+		else if (result.devices.length === 0) setScanError("Tidak ada perangkat Bluetooth ditemukan. Pastikan Bluetooth HP aktif dan modul Motor/BMS sudah menyala atau ter-pair di Pengaturan Bluetooth HP.");
 		setIsScanningBle(false);
-	}, [addLog]);
-	const connectDevice = (0, import_react.useCallback)((device) => {
+	}, [
+		addLog,
+		settings.bmsProtocol,
+		settings.controllerProtocol
+	]);
+	const assignDiscoveredDeviceRole = (0, import_react.useCallback)((address, patch) => {
+		setDiscoveredDevices((prev) => prev.map((d) => d.address === address ? {
+			...d,
+			...patch
+		} : d));
+	}, []);
+	const handleIncomingTransportLine = (0, import_react.useCallback)((deviceType, line) => {
 		const now = Date.now();
-		if (device.deviceType === "motor") {
-			const proto = device.controllerProtocol ?? settings.controllerProtocol;
-			if (proto !== settings.controllerProtocol) updateSettings({
-				...settings,
-				controllerProtocol: proto
+		addLog(deviceType.toUpperCase(), line);
+		if (deviceType === "motor") {
+			setMotorData((prev) => {
+				return parseMotorAtLine(line, {
+					...prev,
+					sourceProtocol: "motor_mid"
+				}, now, (odo) => updateSettings({
+					...latestRef.current.settings,
+					odoBackupKm: odo
+				}), (msg) => addLog("ODO-GUARD", msg, true)) ?? {
+					...prev,
+					sourceProtocol: "motor_mid",
+					lastUpdatedMs: now
+				};
 			});
+			return;
+		}
+		if (deviceType === "esp1") {
+			setEsp1Data((prev) => {
+				const next = {
+					...prev,
+					lastUpdatedMs: now
+				};
+				const pairs = line.split(/[,\s]+/);
+				for (const p of pairs) {
+					const [kRaw, vRaw] = p.split("=");
+					if (!kRaw || vRaw === void 0) continue;
+					const k = kRaw.toUpperCase();
+					const vNum = Number(vRaw);
+					if (k === "SPD" && !Number.isNaN(vNum)) next.speedKmh = vNum;
+					else if (k === "THR" && !Number.isNaN(vNum)) next.throttlePct = vNum;
+					else if (k === "CRUISE") next.cruiseActive = vRaw === "1" || vRaw.toUpperCase() === "ON";
+					else if (k === "REV") next.reverseActive = vRaw === "1" || vRaw.toUpperCase() === "ON";
+					else if (k === "STAND") next.sideStandDown = vRaw === "1" || vRaw.toUpperCase() === "DOWN";
+					else if (k === "CONTACT" || k === "RELAY") next.contactOn = vRaw === "1" || vRaw.toUpperCase() === "ON";
+					else if (k === "MODE" && !Number.isNaN(vNum)) next.modeIndex = vNum;
+				}
+				return next;
+			});
+			return;
+		}
+		if (deviceType === "esp2") setBattery2Data((prev) => {
+			const next = {
+				...prev,
+				lastUpdatedMs: now
+			};
+			const pairs = line.split(/[,\s]+/);
+			for (const p of pairs) {
+				const [kRaw, vRaw] = p.split("=");
+				if (!kRaw || vRaw === void 0) continue;
+				const k = kRaw.toUpperCase();
+				const vNum = Number(vRaw);
+				if ((k === "VBAT" || k === "V2") && !Number.isNaN(vNum)) next.vbat = vNum;
+				else if ((k === "IBAT" || k === "I2") && !Number.isNaN(vNum)) next.ibat = vNum;
+				else if ((k === "SOC" || k === "SOC2") && !Number.isNaN(vNum)) next.socPct = vNum;
+				else if (k === "TEMP" && !Number.isNaN(vNum)) next.tempC = vNum;
+				else if (k === "SOH" && !Number.isNaN(vNum)) next.sohPct = vNum;
+				else if (k === "CAN") next.canMode = vRaw;
+			}
+			return next;
+		});
+	}, [addLog, updateSettings]);
+	const handleIncomingTransportBinary = (0, import_react.useCallback)((deviceType, bytes) => {
+		const now = Date.now();
+		const curSettings = latestRef.current.settings;
+		if (deviceType === "motor") {
+			setMotorData((prev) => {
+				const parsed = parseFardriverFrame(bytes, prev, {
+					polePairs: curSettings.fardriverPolePairs,
+					wheelCircumferenceMm: curSettings.wheelCircumferenceMm,
+					nowMs: now
+				});
+				if (parsed) {
+					addLog("FARDRIVER", parsed.summary);
+					return parsed.data;
+				}
+				return prev;
+			});
+			return;
+		}
+		if (deviceType === "jikong") setJkData((prev) => {
+			const bmsProto = prev.protocol || curSettings.bmsProtocol;
+			const parsed = detectAndParseBmsFrame(bytes, bmsProto, prev, now);
+			if (parsed) {
+				addLog(bmsProto.toUpperCase(), `V=${parsed.vpack?.toFixed(2) ?? "--"}V I=${parsed.ibat?.toFixed(1) ?? "--"}A SOC=${parsed.socPct ?? "--"}%`);
+				return parsed;
+			}
+			return prev;
+		});
+	}, [addLog]);
+	const connectDevice = (0, import_react.useCallback)(async (device) => {
+		const now = Date.now();
+		setScanError("");
+		if (device.deviceType === "motor") setMotorConnState("CONNECTING");
+		else if (device.deviceType === "jikong") setJkConnState("CONNECTING");
+		else if (device.deviceType === "esp1") setEsp1ConnState("CONNECTING");
+		else setEsp2ConnState("CONNECTING");
+		const protoCtrl = device.controllerProtocol ?? (device.isBle ? settings.controllerProtocol : "motor_mid");
+		const protoBms = device.bmsProtocol ?? settings.bmsProtocol;
+		if (device.deviceType === "motor" && protoCtrl !== settings.controllerProtocol) updateSettings({
+			...settings,
+			controllerProtocol: protoCtrl
+		});
+		if (device.deviceType === "jikong" && protoBms !== settings.bmsProtocol) updateSettings({
+			...settings,
+			bmsProtocol: protoBms
+		});
+		if (!await bluetoothTransport.connectDevice(device, {
+			controllerProtocol: protoCtrl,
+			bmsProtocol: protoBms
+		}, {
+			onTextLine: handleIncomingTransportLine,
+			onBinaryFrame: handleIncomingTransportBinary,
+			onDisconnected: (slot, reason) => {
+				if (slot === "motor") {
+					setMotorConnState("DISCONNECTED");
+					setMotorConnName("");
+				} else if (slot === "jikong") {
+					setJkConnState("DISCONNECTED");
+					setJkConnName("");
+				} else if (slot === "esp1") {
+					setEsp1ConnState("DISCONNECTED");
+					setEsp1ConnName("");
+				} else {
+					setEsp2ConnState("DISCONNECTED");
+					setEsp2ConnName("");
+				}
+				addLog(slot.toUpperCase(), reason, true);
+			},
+			onLog: addLog
+		})) {
+			if (device.deviceType === "motor") setMotorConnState("DISCONNECTED");
+			else if (device.deviceType === "jikong") setJkConnState("DISCONNECTED");
+			else if (device.deviceType === "esp1") setEsp1ConnState("DISCONNECTED");
+			else setEsp2ConnState("DISCONNECTED");
+			setScanError(`Gagal menghubungkan ${device.name}. Cek log serial di tab Garasi untuk detail.`);
+			return;
+		}
+		if (device.deviceType === "motor") {
 			setMotorConnState("CONNECTED");
 			setMotorConnName(device.name);
 			setMotorData((prev) => ({
 				...prev,
-				sourceProtocol: proto,
+				sourceProtocol: protoCtrl,
 				lastUpdatedMs: now
 			}));
 		} else if (device.deviceType === "jikong") {
-			const bmsProto = device.bmsProtocol ?? settings.bmsProtocol;
-			if (bmsProto !== settings.bmsProtocol) updateSettings({
-				...settings,
-				bmsProtocol: bmsProto
-			});
 			setJkConnState("CONNECTED");
 			setJkConnName(device.name);
 			setJkData((prev) => ({
 				...prev,
-				protocol: bmsProto,
+				protocol: protoBms,
 				lastUpdatedMs: now
 			}));
 		} else if (device.deviceType === "esp1") {
@@ -15311,13 +17129,45 @@ var DashboardProvider = ({ children }) => {
 				lastUpdatedMs: now
 			}));
 		}
-		addLog("CONN", `Terhubung ke ${device.name} (${device.address})`);
 	}, [
 		addLog,
+		handleIncomingTransportBinary,
+		handleIncomingTransportLine,
 		settings,
 		updateSettings
 	]);
-	const disconnectDevice = (0, import_react.useCallback)((type) => {
+	const connectWebSerialMotor = (0, import_react.useCallback)(async () => {
+		setScanError("");
+		setMotorConnState("CONNECTING");
+		const dev = await bluetoothTransport.connectWebSerialSpp({
+			onTextLine: handleIncomingTransportLine,
+			onBinaryFrame: handleIncomingTransportBinary,
+			onDisconnected: () => {
+				setMotorConnState("DISCONNECTED");
+				setMotorConnName("");
+			},
+			onLog: addLog
+		});
+		if (!dev) {
+			setMotorConnState("DISCONNECTED");
+			setScanError("Gagal membuka port Serial SPP (Web Serial hanya tersedia di Chrome Desktop / adapter serial).");
+			return;
+		}
+		setMotorConnState("CONNECTED");
+		setMotorConnName(dev.name);
+		updateSettings({
+			...settings,
+			controllerProtocol: "motor_mid"
+		});
+	}, [
+		addLog,
+		handleIncomingTransportBinary,
+		handleIncomingTransportLine,
+		settings,
+		updateSettings
+	]);
+	const disconnectDevice = (0, import_react.useCallback)(async (type) => {
+		await bluetoothTransport.disconnectSlot(type);
 		if (type === "motor") {
 			setMotorConnState("DISCONNECTED");
 			setMotorConnName("");
@@ -15335,6 +17185,7 @@ var DashboardProvider = ({ children }) => {
 	}, [addLog]);
 	const injectMotorAtCommand = (0, import_react.useCallback)((line) => {
 		addLog("TX/RX", line);
+		if (motorConnState === "CONNECTED" && !devSimActive) bluetoothTransport.sendTextCommand("motor", line);
 		const now = Date.now();
 		setMotorConnState("CONNECTED");
 		if (!motorConnName) setMotorConnName("MID-AT-CONSOLE");
@@ -15353,7 +17204,9 @@ var DashboardProvider = ({ children }) => {
 		});
 	}, [
 		addLog,
+		devSimActive,
 		motorConnName,
+		motorConnState,
 		settings,
 		updateSettings
 	]);
@@ -15553,6 +17406,7 @@ var DashboardProvider = ({ children }) => {
 		lastMidFramePreview,
 		discoveredDevices,
 		isScanningBle,
+		scanError,
 		badges,
 		fuelSavings,
 		maintStatus,
@@ -15562,6 +17416,8 @@ var DashboardProvider = ({ children }) => {
 		updateSettings,
 		toggleDevSim,
 		scanDevices,
+		connectWebSerialMotor,
+		assignDiscoveredDeviceRole,
 		connectDevice,
 		disconnectDevice,
 		injectMotorAtCommand,
@@ -15711,12 +17567,15 @@ function useDashboard() {
 }
 // src/components/DeviceConnectSheet.tsx
 var DeviceConnectSheet = ({ open, onClose }) => {
-	const { colors, settings, updateSettings, motorConnState, motorConnName, jkConnState, jkConnName, esp1ConnState, esp1ConnName, esp2ConnState, esp2ConnName, devSimActive, toggleDevSim, discoveredDevices, isScanningBle, scanDevices, connectDevice, disconnectDevice } = useDashboard();
+	const { colors, settings, updateSettings, motorConnState, motorConnName, jkConnState, jkConnName, esp1ConnState, esp1ConnName, esp2ConnState, esp2ConnName, devSimActive, toggleDevSim, discoveredDevices, isScanningBle, scanError, scanDevices, connectWebSerialMotor, assignDiscoveredDeviceRole, connectDevice, disconnectDevice } = useDashboard();
+	const isNative = Capacitor.isNativePlatform();
 	(0, import_react.useEffect)(() => {
-		if (open && discoveredDevices.length === 0) scanDevices();
+		if (open && isNative && discoveredDevices.length === 0 && !isScanningBle) scanDevices();
 	}, [
 		open,
+		isNative,
 		discoveredDevices.length,
+		isScanningBle,
 		scanDevices
 	]);
 	if (!open) return null;
@@ -15724,7 +17583,7 @@ var DeviceConnectSheet = ({ open, onClose }) => {
 	const bmsSpec = BMS_PROTOCOL_SPECS[settings.bmsProtocol];
 	const activeSlots = [
 		{
-			label: settings.controllerProtocol === "fardriver" ? "Kontroler Fardriver (ORI)" : "Motor MID (ORI AT+)",
+			label: settings.controllerProtocol === "fardriver" ? "Kontroler Fardriver (ORI)" : "Motor MID (Prioritas SPP / AT+)",
 			type: "motor",
 			state: motorConnState,
 			name: motorConnName
@@ -15748,6 +17607,35 @@ var DeviceConnectSheet = ({ open, onClose }) => {
 			name: esp2ConnName
 		}
 	];
+	const getRoleKey = (dev) => {
+		if (dev.deviceType === "motor") return dev.controllerProtocol === "fardriver" ? "fardriver" : "motor_mid";
+		if (dev.deviceType === "jikong") return `bms_${dev.bmsProtocol ?? settings.bmsProtocol}`;
+		return dev.deviceType;
+	};
+	const handleRoleChange = (address, val) => {
+		if (val === "motor_mid") assignDiscoveredDeviceRole(address, {
+			deviceType: "motor",
+			controllerProtocol: "motor_mid",
+			bmsProtocol: void 0
+		});
+		else if (val === "fardriver") assignDiscoveredDeviceRole(address, {
+			deviceType: "motor",
+			controllerProtocol: "fardriver",
+			bmsProtocol: void 0
+		});
+		else if (val.startsWith("bms_")) {
+			const bms = val.replace("bms_", "");
+			assignDiscoveredDeviceRole(address, {
+				deviceType: "jikong",
+				controllerProtocol: void 0,
+				bmsProtocol: bms
+			});
+		} else if (val === "esp1" || val === "esp2") assignDiscoveredDeviceRole(address, {
+			deviceType: val,
+			controllerProtocol: void 0,
+			bmsProtocol: void 0
+		});
+	};
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
 		className: "fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/65 backdrop-blur-sm p-0 sm:p-4",
 		children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
@@ -15792,11 +17680,11 @@ var DeviceConnectSheet = ({ open, onClose }) => {
 						className: "text-xs mt-0.5",
 						style: { color: colors.textMuted },
 						children: [
-							"Simulasikan ",
+							"Hanya untuk uji UI tanpa hardware fisik (",
 							ctrlSpec.name,
 							" + ",
 							bmsSpec.name,
-							" + ESP32 #1/#2 secara terpisah."
+							")."
 						]
 					})] }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
 						onClick: () => toggleDevSim(!devSimActive),
@@ -15834,7 +17722,7 @@ var DeviceConnectSheet = ({ open, onClose }) => {
 										borderColor: active ? colors.accent : colors.borderSubtle,
 										color: active ? colors.accent : colors.textMuted
 									},
-									children: id === "motor_mid" ? "Motor MID (AT+)" : "Fardriver (BLE/UART)"
+									children: id === "motor_mid" ? "Motor MID (SPP AT+)" : "Fardriver (BLE/UART)"
 								}, id);
 							})
 						}),
@@ -15929,6 +17817,7 @@ var DeviceConnectSheet = ({ open, onClose }) => {
 					className: "space-y-2 mb-4",
 					children: activeSlots.map((slot) => {
 						const connected = slot.state === "CONNECTED";
+						const connecting = slot.state === "CONNECTING";
 						return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 							className: "flex items-center justify-between px-3.5 py-2.5 rounded-xl border",
 							style: {
@@ -15940,10 +17829,10 @@ var DeviceConnectSheet = ({ open, onClose }) => {
 								children: slot.label
 							}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
 								className: "text-[11px]",
-								style: { color: connected ? colors.accent : colors.textMuted },
-								children: connected ? `Terhubung: ${slot.name}` : "Belum terhubung"
+								style: { color: connected ? colors.accent : connecting ? colors.warning : colors.textMuted },
+								children: connected ? `Terhubung: ${slot.name}` : connecting ? "Menghubungkan…" : "Belum terhubung"
 							})] }), connected ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
-								onClick: () => disconnectDevice(slot.type),
+								onClick: () => void disconnectDevice(slot.type),
 								className: "flex items-center gap-1 text-xs font-semibold px-2.5 py-1.5 rounded-lg cursor-pointer",
 								style: {
 									backgroundColor: `${colors.danger}22`,
@@ -15953,70 +17842,170 @@ var DeviceConnectSheet = ({ open, onClose }) => {
 							}) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
 								className: "text-[11px] font-medium",
 								style: { color: colors.textMuted },
-								children: "Standby"
+								children: connecting ? "Proses" : "Standby"
 							})]
 						}, slot.type);
 					})
 				}),
 				/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-					className: "flex items-center justify-between mb-2",
+					className: "flex flex-wrap items-center justify-between gap-2 mb-2",
 					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
 						className: "text-xs font-bold uppercase tracking-wider",
 						style: { color: colors.textMuted },
-						children: "Perangkat Terdeteksi (WebBLE / Paired)"
-					}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
-						onClick: scanDevices,
-						disabled: isScanningBle,
-						className: "flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-xl cursor-pointer",
-						style: {
-							backgroundColor: `${colors.accentSecondary}22`,
-							color: colors.accentSecondary
-						},
-						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(RefreshCw, {
-							size: 13,
-							className: isScanningBle ? "animate-spin" : ""
-						}), isScanningBle ? "Memindai…" : "Pindai Ulang"]
+						children: isNative ? "Perangkat Nyata (SPP Paired & BLE)" : "Perangkat Nyata (WebBLE & Serial)"
+					}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+						className: "flex items-center gap-1.5",
+						children: [!isNative && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
+							onClick: () => void connectWebSerialMotor(),
+							className: "flex items-center gap-1 text-xs font-bold px-2.5 py-1.5 rounded-xl border cursor-pointer",
+							style: {
+								backgroundColor: colors.surfaceElevated,
+								borderColor: colors.borderSubtle,
+								color: colors.accent
+							},
+							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Usb, { size: 13 }), " Port SPP"]
+						}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
+							onClick: () => void scanDevices(),
+							disabled: isScanningBle,
+							className: "flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-xl cursor-pointer",
+							style: {
+								backgroundColor: `${colors.accentSecondary}22`,
+								color: colors.accentSecondary
+							},
+							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(RefreshCw, {
+								size: 13,
+								className: isScanningBle ? "animate-spin" : ""
+							}), isScanningBle ? "Memindai…" : isNative ? "Pindai SPP + BLE" : "Pilih WebBLE"]
+						})]
 					})]
+				}),
+				scanError && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+					className: "rounded-xl p-3 mb-3 border flex items-start gap-2 text-xs",
+					style: {
+						backgroundColor: `${colors.warning}15`,
+						borderColor: `${colors.warning}66`,
+						color: colors.warning
+					},
+					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(CircleAlert, {
+						size: 15,
+						className: "shrink-0 mt-0.5"
+					}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: scanError })]
 				}),
 				/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
 					className: "space-y-2",
-					children: discoveredDevices.map((dev) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-						className: "flex items-center justify-between p-3 rounded-xl border",
+					children: discoveredDevices.length === 0 ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+						className: "rounded-xl p-4 border text-center text-xs space-y-1",
+						style: {
+							backgroundColor: colors.background,
+							borderColor: colors.borderSubtle,
+							color: colors.textMuted
+						},
+						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+							className: "font-bold",
+							style: { color: colors.textPrimary },
+							children: isScanningBle ? "Memindai Bluetooth SPP & BLE di sekitar…" : "Belum ada perangkat Bluetooth aktif."
+						}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { children: isNative ? "Pair modul MID (HC-05/SPP) di Pengaturan Bluetooth HP atau nyalakan BMS/Fardriver BLE lalu tekan \"Pindai SPP + BLE\"." : "Klik \"Pilih WebBLE\" untuk BMS/Fardriver BLE di Chrome, atau gunakan APK Android untuk Classic Bluetooth SPP MID." })]
+					}) : discoveredDevices.map((dev) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+						className: "p-3 rounded-xl border space-y-2",
 						style: {
 							backgroundColor: colors.background,
 							borderColor: colors.borderSubtle
 						},
 						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-							className: "flex items-center gap-2.5 min-w-0",
-							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Cpu, {
-								size: 16,
-								style: { color: colors.accentSecondary }
-							}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-								className: "min-w-0",
-								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-									className: "text-xs font-bold truncate",
-									children: dev.name
+							className: "flex items-center justify-between gap-2",
+							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+								className: "flex items-center gap-2.5 min-w-0",
+								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Cpu, {
+									size: 16,
+									style: { color: dev.isBle ? colors.accentSecondary : colors.accent }
 								}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-									className: "text-[11px] tnum",
-									style: { color: colors.textMuted },
-									children: [
-										dev.address,
-										" • ",
-										dev.isBle ? "BLE" : "Classic SPP",
-										" • ",
-										dev.rssi,
-										" dBm"
-									]
+									className: "min-w-0",
+									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+										className: "text-xs font-bold truncate flex items-center gap-1.5",
+										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+											className: "truncate",
+											children: dev.name
+										}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+											className: "text-[10px] px-1.5 py-0.5 rounded font-bold shrink-0",
+											style: {
+												backgroundColor: dev.isBle ? `${colors.accentSecondary}22` : `${colors.accent}22`,
+												color: dev.isBle ? colors.accentSecondary : colors.accent
+											},
+											children: dev.isBle ? "BLE" : "SPP"
+										})]
+									}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+										className: "text-[11px] tnum",
+										style: { color: colors.textMuted },
+										children: [
+											dev.address,
+											" ",
+											dev.isPaired ? "• Paired" : "",
+											" • ",
+											dev.rssi,
+											" dBm"
+										]
+									})]
 								})]
+							}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
+								onClick: () => void connectDevice(dev),
+								className: "flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold shrink-0 cursor-pointer",
+								style: {
+									backgroundColor: colors.accent,
+									color: "#041418"
+								},
+								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(CircleCheck, { size: 13 }), " Hubungkan"]
 							})]
-						}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
-							onClick: () => connectDevice(dev),
-							className: "flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold shrink-0 cursor-pointer",
-							style: {
-								backgroundColor: colors.accent,
-								color: "#041418"
-							},
-							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(CircleCheck, { size: 13 }), " Hubungkan"]
+						}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+							className: "flex items-center justify-between gap-2 pt-1 border-t",
+							style: { borderColor: colors.borderSubtle },
+							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+								className: "text-[10px]",
+								style: { color: colors.textMuted },
+								children: "Peran Modul:"
+							}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("select", {
+								value: getRoleKey(dev),
+								onChange: (e) => handleRoleChange(dev.address, e.target.value),
+								className: "px-2 py-1 rounded-lg text-[11px] font-bold border outline-none",
+								style: {
+									backgroundColor: colors.surfaceElevated,
+									borderColor: colors.borderSubtle,
+									color: colors.textPrimary
+								},
+								children: [
+									/* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", {
+										value: "motor_mid",
+										children: "Motor MID (SPP AT+)"
+									}),
+									/* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", {
+										value: "fardriver",
+										children: "Fardriver Controller"
+									}),
+									/* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", {
+										value: "bms_jk",
+										children: "Smart BMS: JK-BMS"
+									}),
+									/* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", {
+										value: "bms_ant",
+										children: "Smart BMS: ANT BMS"
+									}),
+									/* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", {
+										value: "bms_daly",
+										children: "Smart BMS: DALY"
+									}),
+									/* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", {
+										value: "bms_jbd",
+										children: "Smart BMS: JBD / Xiaoxiang"
+									}),
+									/* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", {
+										value: "esp1",
+										children: "ESP32 #1 (Kontak/LED)"
+									}),
+									/* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", {
+										value: "esp2",
+										children: "ESP32 #2 (Pack 2 CAN)"
+									})
+								]
+							})]
 						})]
 					}, dev.address))
 				})
@@ -16176,8 +18165,8 @@ var OfflineIndicator = () => {
 	});
 };
 // src/components/UpdateNotifier.tsx
-var CURRENT_APP_VERSION = "1.0.0";
-var CURRENT_BUILD_TIME = "2026-11-26T01:28:19.317Z";
+var CURRENT_APP_VERSION = "1.0.2";
+var CURRENT_BUILD_TIME = "2026-11-26T02:06:36.664Z";
 function compareSemver(a, b) {
 	const pa = a.replace(/^v/i, "").split(".").map((n) => Number.parseInt(n, 10) || 0);
 	const pb = b.replace(/^v/i, "").split(".").map((n) => Number.parseInt(n, 10) || 0);
@@ -16207,7 +18196,7 @@ async function fetchLatestVersionManifest() {
 function isRemoteUpdateAvailable(remote) {
 	const cmp = compareSemver(remote.version, CURRENT_APP_VERSION);
 	if (cmp > 0) return true;
-	if (cmp === 0 && remote.buildTime && remote.buildTime !== "2026-11-26T01:28:19.317Z") {
+	if (cmp === 0 && remote.buildTime && remote.buildTime !== "2026-11-26T02:06:36.664Z") {
 		const remoteMs = Date.parse(remote.buildTime);
 		const localMs = Date.parse(CURRENT_BUILD_TIME);
 		if (!Number.isNaN(remoteMs) && !Number.isNaN(localMs) && remoteMs - localMs > 6e4) return true;
@@ -27353,3 +29342,4 @@ function App() {
 }
 // src/main.tsx
 (0, import_client.createRoot)(document.getElementById("root")).render(/* @__PURE__ */ (0, import_jsx_runtime.jsx)(App, {}));
+export { WebPlugin as a, webUUIDToString as i, mapToObject as n, toArrayBufferDataView as r, hexStringToDataView as t };

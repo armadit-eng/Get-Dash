@@ -50,8 +50,17 @@ jobs:
           distribution: 'temurin'
           java-version: '21'
 
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
+      - name: Configure Preinstalled Android SDK & Licenses
+        run: |
+          SDK_DIR="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}}"
+          echo "ANDROID_HOME=${SDK_DIR}" >> "$GITHUB_ENV"
+          echo "ANDROID_SDK_ROOT=${SDK_DIR}" >> "$GITHUB_ENV"
+          SDKMGR=$(find "${SDK_DIR}/cmdline-tools" -name sdkmanager -type f 2>/dev/null | head -n 1 || true)
+          if [ -n "$SDKMGR" ]; then
+            chmod +x "$SDKMGR" || true
+            yes | "$SDKMGR" --sdk_root="${SDK_DIR}" --licenses >/dev/null 2>&1 || true
+            "$SDKMGR" --sdk_root="${SDK_DIR}" "platform-tools" "platforms;android-36" "build-tools;36.0.0" || true
+          fi
 
       - name: Install dependencies
         run: |

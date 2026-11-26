@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { RefreshCw, Sparkles, X } from 'lucide-react';
+import { Download, RefreshCw, Sparkles, X } from 'lucide-react';
 import { useDashboard } from '../context/DashboardContext';
 
 export interface VersionManifest {
@@ -7,6 +7,7 @@ export interface VersionManifest {
   buildTime?: string;
   commit?: string;
   notes?: string;
+  apkUrl?: string;
 }
 
 export const CURRENT_APP_VERSION =
@@ -183,8 +184,19 @@ export const UpdateNotifier: React.FC = () => {
             style={{ backgroundColor: colors.accent, color: '#041418' }}
           >
             <RefreshCw size={13} className={updating ? 'animate-spin' : ''} />
-            {updating ? 'Memuat Ulang…' : 'Update & Muat Ulang'}
+            {updating ? 'Memuat Ulang…' : 'Update Web/PWA'}
           </button>
+          {available.apkUrl && (
+            <a
+              href={available.apkUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center gap-1 px-3 py-2 rounded-xl text-xs font-bold border"
+              style={{ borderColor: colors.accent, color: colors.accent }}
+            >
+              <Download size={13} /> APK
+            </a>
+          )}
           <button
             onClick={handleDismiss}
             className="px-3 py-2 rounded-xl text-xs font-bold border cursor-pointer"

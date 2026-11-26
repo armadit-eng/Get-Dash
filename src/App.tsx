@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { BarChart3, Compass, HeartPulse, LayoutDashboard, Wrench } from 'lucide-react';
 import { DeviceConnectSheet } from './components/DeviceConnectSheet';
+import { OfflineIndicator, PWAInstallButton } from './components/PWAInstallBanner';
 import { CURRENT_APP_VERSION, UpdateNotifier } from './components/UpdateNotifier';
 import { DashboardProvider, useDashboard } from './context/DashboardContext';
 import { DiagnosisScreen } from './screens/DiagnosisScreen';
@@ -70,6 +71,10 @@ const DashboardShell: React.FC = () => {
             );
           })}
         </nav>
+
+        <div className="hidden lg:block pt-2">
+          <PWAInstallButton />
+        </div>
       </aside>
 
       {/* Main Content Stage */}
@@ -120,6 +125,7 @@ const DashboardShell: React.FC = () => {
 
       {/* Modals & Fullscreen Routes */}
       <UpdateNotifier />
+      <OfflineIndicator />
       <DeviceConnectSheet open={showDevices} onClose={() => setShowDevices(false)} />
       {showRidingCockpit && <RidingCockpitScreen onClose={() => setShowRidingCockpit(false)} />}
       {showMotovlogCam && <MotovlogCamScreen onClose={() => setShowMotovlogCam(false)} />}

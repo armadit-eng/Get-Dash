@@ -7,6 +7,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.resolve(__dirname, '..');
 const pkgPath = path.join(rootDir, 'package.json');
 const versionJsonPath = path.join(rootDir, 'public', 'version.json');
+const gradlePath = path.join(rootDir, 'android', 'app', 'build.gradle');
 
 const args = process.argv.slice(2);
 const syncOnly = args.includes('--sync-only');
@@ -33,6 +34,7 @@ if (!syncOnly) {
 }
 
 const nextVersion = `${major}.${minor}.${patch}`;
+const versionCode = major * 10000 + minor * 100 + patch;
 
 let gitCommit = '';
 let gitSubject = process.env.COMMIT_MSG || 'Pembaruan sistem & telemetri EV';
@@ -54,14 +56,29 @@ if (!syncOnly) {
   fs.writeFileSync(pkgPath, `${JSON.stringify(pkg, null, 2)}\n`, 'utf8');
 }
 
+// Sync Android Gradle versionCode & versionName if Capacitor android/ is present
+if (fs.existsSync(gradlePath)) {
+  let gradle = fs.readFileSync(gradlePath, 'utf8');
+  gradle = gradle.replace(/versionCode\s+\d+/, `versionCode ${versionCode}`);
+  gradle = gradle.replace(/versionName\s+"[^"]*"/, `versionName "${nextVersion}"`);
+  fs.writeFileSync(gradlePath, gradle, 'utf8');
+}
+
+const repoSlug = process.env.GITHUB_REPOSITORY || 'armadit-eng/dashboard-app';
+const apkFileName = `Dashboard-EV-v${nextVersion}.apk`;
+const apkUrl = `https://github.com/${repoSlug}/releases/download/v${nextVersion}/${apkFileName}`;
+
 const versionPayload = {
   version: nextVersion,
+  versionCode,
   buildTime: new Date().toISOString(),
   commit: gitCommit || undefined,
   notes: gitSubject.split('\n')[0].trim(),
+  apkFileName,
+  apkUrl,
 };
 
 fs.mkdirSync(path.dirname(versionJsonPath), { recursive: true });
 fs.writeFileSync(versionJsonPath, `${JSON.stringify(versionPayload, null, 2)}\n`, 'utf8');
 
-console.log(`[version] ${syncOnly ? 'Synced' : `Bumped ${currentVersion} ->`} v${nextVersion}`);
+console.log(`[version] ${syncOnly ? 'Synced' : `Bumped ${currentVersion} ->`} v${nextVersion} (code ${versionCode})`);

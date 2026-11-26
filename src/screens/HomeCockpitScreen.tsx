@@ -20,6 +20,7 @@ import {
   Wrench,
   Zap,
 } from 'lucide-react';
+import { PWAInstallButton } from '../components/PWAInstallBanner';
 import { SpeedoGauge } from '../components/SpeedoGauge';
 import { useDashboard } from '../context/DashboardContext';
 import { computeIdleDrainPct, computeRidingScore } from '../engine/telemetryEngine';
@@ -109,7 +110,8 @@ export const HomeCockpitScreen: React.FC<HomeCockpitScreenProps> = ({
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <PWAInstallButton compact />
           <button
             onClick={() => toggleDevSim(!devSimActive)}
             className="px-3 py-2 rounded-xl text-xs font-bold border transition cursor-pointer"

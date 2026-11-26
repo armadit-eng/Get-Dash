@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react';
 import fs from 'fs';
 import path from 'path';
 import {defineConfig} from 'vite';
+import {VitePWA} from 'vite-plugin-pwa';
 
 export default defineConfig(() => {
   const pkgPath = path.resolve(__dirname, 'package.json');
@@ -17,6 +18,59 @@ export default defineConfig(() => {
     plugins: [
       react(),
       tailwindcss(),
+      VitePWA({
+        registerType: 'autoUpdate',
+        includeAssets: [
+          'apple-touch-icon.png',
+          'pwa-192x192.png',
+          'pwa-512x512.png',
+          'pwa-maskable-512x512.png',
+          'assets/ev_cockpit_icon.jpg',
+        ],
+        manifest: {
+          id: '/',
+          name: 'Dashboard EV — Smart Cockpit',
+          short_name: 'Dash EV',
+          description:
+            'Smart cockpit motor listrik: telemetri Fardriver & MID, Smart BMS JK/ANT/DALY/JBD, dan navigasi.',
+          theme_color: '#091119',
+          background_color: '#091119',
+          display: 'standalone',
+          orientation: 'any',
+          start_url: '/',
+          scope: '/',
+          icons: [
+            {
+              src: '/pwa-192x192.png',
+              sizes: '192x192',
+              type: 'image/png',
+              purpose: 'any',
+            },
+            {
+              src: '/pwa-512x512.png',
+              sizes: '512x512',
+              type: 'image/png',
+              purpose: 'any',
+            },
+            {
+              src: '/pwa-maskable-512x512.png',
+              sizes: '512x512',
+              type: 'image/png',
+              purpose: 'maskable',
+            },
+          ],
+        },
+        workbox: {
+          globPatterns: ['**/*.{js,css,html,ico,png,jpg,svg,woff,woff2,json}'],
+          globIgnores: ['**/version.json'],
+          navigateFallbackDenylist: [/^\/version\.json$/],
+          maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
+        },
+        devOptions: {
+          enabled: true,
+          type: 'module',
+        },
+      }),
       // Copies src/assets into dist/ so root-relative URLs like
       // "/src/assets/images/..." (e.g. generate_image output) still resolve
       // in production builds. Do not remove.

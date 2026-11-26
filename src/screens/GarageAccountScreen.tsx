@@ -3,6 +3,7 @@ import {
   Camera,
   ChevronDown,
   ChevronUp,
+  Download,
   Edit3,
   Moon,
   Music,
@@ -17,6 +18,7 @@ import {
   Volume2,
   Warehouse,
 } from 'lucide-react';
+import { PWAInstallButton } from '../components/PWAInstallBanner';
 import {
   CURRENT_APP_VERSION,
   fetchLatestVersionManifest,
@@ -59,6 +61,12 @@ export const GarageAccountScreen: React.FC<GarageAccountScreenProps> = ({
   const [checkingUpdate, setCheckingUpdate] = useState(false);
   const [updateMsg, setUpdateMsg] = useState<string>('');
   const [remoteManifest, setRemoteManifest] = useState<VersionManifest | null>(null);
+
+  React.useEffect(() => {
+    void fetchLatestVersionManifest().then((m) => {
+      if (m) setRemoteManifest(m);
+    });
+  }, []);
 
   const livery = getLiveryById(settings.garageStyleId);
   const activeMatrix = matrixQueue.find((m) => m.enabled)?.text || 'GESITS EV';
@@ -485,56 +493,75 @@ export const GarageAccountScreen: React.FC<GarageAccountScreenProps> = ({
         </div>
       </div>
 
-      {/* 4b. App Version & Manual Update Check */}
+      {/* 4b. App Version, PWA Install & Android APK Download */}
       <div
-        className="rounded-2xl p-4 border flex flex-wrap items-center justify-between gap-3"
+        className="rounded-2xl p-4 border space-y-3"
         style={{ backgroundColor: colors.surfaceCard, borderColor: colors.borderSubtle }}
       >
-        <div>
-          <div className="text-sm font-bold">Versi Aplikasi & Pembaruan Otomatis</div>
-          <div className="text-xs mt-0.5" style={{ color: colors.textMuted }}>
-            Versi terpasang: <span className="font-bold tnum" style={{ color: colors.accent }}>v{CURRENT_APP_VERSION}</span>
-            {updateMsg ? ` • ${updateMsg}` : ''}
-          </div>
-          {remoteManifest?.notes && (
-            <div className="text-[11px] mt-1" style={{ color: colors.textPrimary }}>
-              Rilis terbaru (v{remoteManifest.version}): {remoteManifest.notes}
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <div className="text-sm font-bold">Versi Aplikasi, PWA & Android APK</div>
+            <div className="text-xs mt-0.5" style={{ color: colors.textMuted }}>
+              Versi terpasang: <span className="font-bold tnum" style={{ color: colors.accent }}>v{CURRENT_APP_VERSION}</span>
+              {updateMsg ? ` • ${updateMsg}` : ''}
             </div>
-          )}
-        </div>
-        <div className="flex items-center gap-2">
-          {remoteManifest && isRemoteUpdateAvailable(remoteManifest) && (
-            <button
-              onClick={() => void reloadToLatestVersion()}
-              className="px-3 py-2 rounded-xl text-xs font-bold cursor-pointer"
-              style={{ backgroundColor: colors.accent, color: '#041418' }}
+            {remoteManifest?.notes && (
+              <div className="text-[11px] mt-1" style={{ color: colors.textPrimary }}>
+                Rilis terbaru (v{remoteManifest.version}): {remoteManifest.notes}
+              </div>
+            )}
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <PWAInstallButton compact />
+            <a
+              href={
+                remoteManifest?.apkUrl ||
+                'https://github.com/armadit-eng/dashboard-app/releases/latest'
+              }
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border"
+              style={{
+                backgroundColor: `${colors.accentSecondary}1A`,
+                borderColor: `${colors.accentSecondary}66`,
+                color: colors.accentSecondary,
+              }}
             >
-              Muat Ulang v{remoteManifest.version}
+              <Download size={13} /> Unduh APK Android
+            </a>
+            {remoteManifest && isRemoteUpdateAvailable(remoteManifest) && (
+              <button
+                onClick={() => void reloadToLatestVersion()}
+                className="px-3 py-1.5 rounded-xl text-xs font-bold cursor-pointer"
+                style={{ backgroundColor: colors.accent, color: '#041418' }}
+              >
+                Muat Ulang v{remoteManifest.version}
+              </button>
+            )}
+            <button
+              onClick={async () => {
+                setCheckingUpdate(true);
+                const latest = await fetchLatestVersionManifest();
+                setCheckingUpdate(false);
+                if (!latest) {
+                  setUpdateMsg('Gagal memeriksa /version.json');
+                  return;
+                }
+                setRemoteManifest(latest);
+                if (isRemoteUpdateAvailable(latest)) {
+                  setUpdateMsg(`Tersedia v${latest.version}!`);
+                } else {
+                  setUpdateMsg(`Sudah versi terbaru (v${latest.version})`);
+                }
+              }}
+              disabled={checkingUpdate}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border cursor-pointer"
+              style={{ borderColor: colors.borderSubtle, color: colors.accent }}
+            >
+              <RefreshCw size={13} className={checkingUpdate ? 'animate-spin' : ''} />
+              Cek Update
             </button>
-          )}
-          <button
-            onClick={async () => {
-              setCheckingUpdate(true);
-              const latest = await fetchLatestVersionManifest();
-              setCheckingUpdate(false);
-              if (!latest) {
-                setUpdateMsg('Gagal memeriksa /version.json');
-                return;
-              }
-              setRemoteManifest(latest);
-              if (isRemoteUpdateAvailable(latest)) {
-                setUpdateMsg(`Tersedia v${latest.version}!`);
-              } else {
-                setUpdateMsg(`Sudah versi terbaru (v${latest.version})`);
-              }
-            }}
-            disabled={checkingUpdate}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold border cursor-pointer"
-            style={{ borderColor: colors.borderSubtle, color: colors.accent }}
-          >
-            <RefreshCw size={13} className={checkingUpdate ? 'animate-spin' : ''} />
-            Cek Update
-          </button>
+          </div>
         </div>
       </div>
 

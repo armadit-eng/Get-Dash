@@ -1,5 +1,6 @@
 {
-  "version": "1.0.0",
-  "buildTime": "2026-11-26T01:09:27.380Z",
-  "notes": "Pembaruan sistem & telemetri EV"
+  "version": "1.0.1",
+  "buildTime": "2026-11-26T01:20:19.062Z",
+  "commit": "fba6ec7",
+  "notes": "build: use legacy-peer-deps for npm installation"
 }

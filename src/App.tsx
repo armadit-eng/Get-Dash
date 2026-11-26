@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { BarChart3, Compass, HeartPulse, LayoutDashboard, Wrench } from 'lucide-react';
 import { DeviceConnectSheet } from './components/DeviceConnectSheet';
+import { CURRENT_APP_VERSION, UpdateNotifier } from './components/UpdateNotifier';
 import { DashboardProvider, useDashboard } from './context/DashboardContext';
 import { DiagnosisScreen } from './screens/DiagnosisScreen';
 import { GarageAccountScreen } from './screens/GarageAccountScreen';
@@ -45,7 +46,7 @@ const DashboardShell: React.FC = () => {
           <div className="hidden lg:block min-w-0">
             <div className="text-sm font-extrabold leading-tight truncate">Dashboard EV</div>
             <div className="text-[10px] font-semibold truncate" style={{ color: colors.accent }}>
-              Dual-Pack Cockpit
+              Dual-Pack • v{CURRENT_APP_VERSION}
             </div>
           </div>
         </div>
@@ -118,6 +119,7 @@ const DashboardShell: React.FC = () => {
       </nav>
 
       {/* Modals & Fullscreen Routes */}
+      <UpdateNotifier />
       <DeviceConnectSheet open={showDevices} onClose={() => setShowDevices(false)} />
       {showRidingCockpit && <RidingCockpitScreen onClose={() => setShowRidingCockpit(false)} />}
       {showMotovlogCam && <MotovlogCamScreen onClose={() => setShowMotovlogCam(false)} />}
